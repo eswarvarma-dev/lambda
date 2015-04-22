@@ -1,0 +1,14 @@
+name: lambda
+version: 0.0.1
+description: A bunch of Dart code
+authors:
+- Yegor Jbanov <yjbanov@google.com>
+dependencies:
+  browser: any
+  built_collection: "^0.1.1"
+dev_dependencies:
+  unittest: any
+  guinness: any
+transformers:
+- $dart2js:
+    minify: false
