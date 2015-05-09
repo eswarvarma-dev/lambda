@@ -4,6 +4,8 @@ description: A bunch of Dart code
 authors:
 - Yegor Jbanov <yjbanov@google.com>
 dependencies:
+  analyzer: '^0.25.0'
+  barback: '^0.15.2'
   browser: any
   built_collection: "^0.1.1"
 dev_dependencies:
