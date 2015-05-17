@@ -1,7 +1,7 @@
 library lambda.integration.test;
 
 import 'package:guinness/guinness.dart';
-import 'package:lambda/lambda.dart';
+import 'package:lambda/browser.dart';
 
 main() {
   describe('lambda', () {
@@ -16,7 +16,7 @@ class ItemList extends Component {
   final items = ['foo', 'bar', 'baz'];
 
   Node render() {
-    return div(items.map((item) => new Item(item).render()));
+    return ldiv(items.map((item) => new Item(item).render()));
   }
 }
 
@@ -26,6 +26,6 @@ class Item extends Component {
   Item(this.item);
 
   Node render() {
-    return div([text(item)]);
+    return div({}, text(item));
   }
 }

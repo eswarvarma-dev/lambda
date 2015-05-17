@@ -3,14 +3,24 @@ version: 0.0.1
 description: A bunch of Dart code
 authors:
 - Yegor Jbanov <yjbanov@google.com>
+homepage: https://github.com/yjbanov/lambda
+sdk: ">=1.10.0"
 dependencies:
-  analyzer: '^0.25.0'
-  barback: '^0.15.2'
-  browser: any
-  built_collection: "^0.1.1"
+  analyzer: ">=0.25.0 <0.26.0"
+  args: any
+  barback: ">=0.15.2 <0.16.0"
+  browser: ">=0.10.0+2 <0.11.0"
+  path: any
+  html: any
 dev_dependencies:
-  unittest: any
+  test: any
   guinness: any
 transformers:
+#- lambda
 - $dart2js:
-    minify: false
+    minify: true
+    commandLineOptions:
+    - --dump-info
+    - --show-package-warnings
+    - --trust-type-annotations
+    - --trust-primitives

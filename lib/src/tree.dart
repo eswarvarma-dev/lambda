@@ -3,114 +3,41 @@
  */
 library lambda.tree;
 
-import 'package:built_collection/built_collection.dart';
+import 'dart:math';
 
-final _NO_CHILDREN = new BuiltList<Node>();
-final _NO_ATTRS = new BuiltMap<String, String>();
+part 'tree/comment.dart';
+part 'tree/element.dart';
+part 'tree/projection.dart';
+part 'tree/text.dart';
+
+final _NO_CHILDREN = const <Node>[];
+final _NO_ATTRS = const <String, String>{};
 
 abstract class Node {
-  String toXml();
+  final int typeIndex;
+
+  Node(this.typeIndex);
+
+  /// Creates a [Patch] that, when applied to [other], produces a node tree
+  /// identical with `this` node tree.
+  ///
+  /// Usually [other] is the previous tree state in a series of tree
+  /// transformations.
+  Patch diff(int selfIndex, Node other);
 }
 
-class Element extends Node {
-  final String tagName;
-  final BuiltList<Node> _children;
-  final BuiltMap<String, String> _attributes;
+abstract class Patch {
+  /// Which type of node is being patched
+  final int nodeTypeIndex;
+  /// Index on the patched node in the parent
+  final int index;
 
-  Element(this.tagName, {
-    BuiltList<Node> children,
-    BuiltMap<String, String> attributes
-  }) : this._children = children != null ? children : _NO_CHILDREN,
-       this._attributes = attributes != null ? attributes : _NO_ATTRS;
-
-  BuiltList<Node> get children => _children;
-
-  Node operator[](int index) {
-    return _children[index];
-  }
-
-  int get length => _children.length;
-
-  bool get hasAttributes =>
-    _attributes != null &&
-    _attributes.isNotEmpty;
-
-  BuiltMap<String, String> get attributes {
-    return _attributes;
-  }
-
-  bool get hasChildren =>
-    _children != null &&
-    _children.isNotEmpty;
-
-  @override
-  String toXml() {
-    final sb = new StringBuffer('<');
-    sb.write(tagName);
-
-    if (hasAttributes) {
-      attributes.forEach((String name, String value) {
-        sb
-          ..write(' ')
-          ..write(name)
-          ..write('="')
-          ..write(value)
-          ..write('"');
-      });
-    }
-
-    sb.write('>');
-
-    if (hasChildren) {
-      this._children
-        .map((Node child) => child.toXml())
-        .forEach(sb.write);
-    }
-
-    sb
-      ..write('</')
-      ..write(tagName)
-      ..write('>');
-    return sb.toString();
-  }
-
-  @override
-  String toString() => toXml();
-
-  Element queryById(String id) {
-    if (this.attributes['id'] == id) {
-      return this;
-    } else if (hasChildren) {
-      for (int i = 0; i < _children.length; i++) {
-        if (_children[i] is! Element) continue;
-        Element childElem = _children[i];
-        Element childResult = childElem.queryById(id);
-        if (childResult != null) {
-          return childResult;
-        }
-      }
-    }
-    return null;
-  }
+  Patch(this.nodeTypeIndex, this.index);
 }
 
-class Text extends Node {
-
-  final String _value;
-
-  Text(String value) : _value = value;
-
-  String get value => _value;
-
-  @override
-  String toXml() => _value;
-
-  @override
-  String toString() => 'TEXT($value)';
+class ReplacementPatch extends Patch {
+  final Node replacement;
+  ReplacementPatch(int index, Node replacement)
+      : super(replacement.typeIndex, index),
+        this.replacement = replacement;
 }
-
-Element div(Iterable<Node> children) {
-  return new Element('div', children: new BuiltList<Node>(children));
-}
-
-Text text(String value) => new Text(value);
