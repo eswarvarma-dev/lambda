@@ -1,8 +1,8 @@
 library app.ui;
 
-@Uses(const [For])
+@Uses(const [Foreach])
 import 'package:lambda/lambda.dart';
-import 'package:lambda/directives.dart';
+import 'package:lambda/foreach.dart';
 
 part 'app.gen.dart'; // generated part
 
@@ -25,9 +25,9 @@ class Form {
 // Fragments: control UI structure
 @View('''
 <ul>
-  <% For(items) : String item %>
+  <% Foreach(items) : String item %>
     <li>{{prefix}} - {{item}}</li>
-  <% /For %>
+  <% /Foreach %>
 </ul>
 ''')
 class Menu {
@@ -38,14 +38,14 @@ class Menu {
 // Example: fragments can nest
 @View('''
 <table>
-  <% For(rows) : Map<String, String> row %>
+  <% Foreach(rows) : Map<String, String> row %>
     <tr>
       <td>{{row['num']}}</td>
-      <% For(row['cols']) : String col %>
+      <% Foreach(row['cols']) : String col %>
         <td>{{row['pref']}} - {{col}}</td>
-      <% /For %>
+      <% /Foreach %>
     </tr>
-  <% /For %>
+  <% /Foreach %>
 </table>
 ''')
 class Table {
@@ -58,10 +58,17 @@ class Table {
 // Decorators: control element properties
 @View('''
 <div>
-  @Material(theme: currentTheme)
+  [[ Value(text: text, onChange: textChanged) ]]
   <input type="text">
 </div>
 ''')
+class MaterialInput {
+  String text;
+
+  textChanged(String newText) {
+
+  }
+}
 
 // TODO: DI
 // TODO: events

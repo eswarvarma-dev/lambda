@@ -1,10 +1,11 @@
 library lambda.compiler;
 
+import 'dart:async';
 import 'package:barback/barback.dart';
 
-class Compiler extends Transformer {
+class LambdaCompiler extends Transformer {
 
-  Compiler();
+  LambdaCompiler();
 
   @override
   bool isPrimary(AssetId id) => id.path.endsWith('.ui.dart');

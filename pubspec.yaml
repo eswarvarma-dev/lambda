@@ -6,6 +6,8 @@ authors:
 homepage: https://github.com/yjbanov/lambda
 sdk: ">=1.10.0"
 dependencies:
+  uix:
+    git: https://github.com/localvoid/uix
   analyzer: ">=0.25.0 <0.26.0"
   args: any
   barback: ">=0.15.2 <0.16.0"
