@@ -8,8 +8,8 @@ export 'package:uix/uix.dart';
 /// A noop annotation that causes Dart analyzer to shut up about "unused"
 /// imports. Because Lambda template language can refer to symbols, it requires
 /// that those symbols are imported.
-class Uses {
-  const Uses(List usages);
+class LambdaUi {
+  const LambdaUi({List uses});
 }
 
 /// Describes the UI structure of a component using Angular-ish template

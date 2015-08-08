@@ -12,14 +12,16 @@ dependencies:
   args: any
   barback: ">=0.15.2 <0.16.0"
   browser: ">=0.10.0+2 <0.11.0"
-  path: any
-  html: any
 dev_dependencies:
   test: any
   guinness: any
+  path: any
+  html: any
 transformers:
-#- lambda
+- lambda:
+    $include: web/tests/*
 - $dart2js:
+    $exclude: web
     minify: true
     commandLineOptions:
     - --dump-info
