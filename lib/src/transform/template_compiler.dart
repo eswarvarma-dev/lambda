@@ -29,44 +29,51 @@ class TemplateCompiler {
 
   void _virtualizeNode(XmlNode node) {
     if (node is XmlElement) {
-      XmlElement elem = node;
-      _emit(" vElement('${elem.name.local}'");
-      if (elem.attributes.isNotEmpty) {
-        _emit(' , customAttrs: {');
-        elem.attributes.forEach((XmlAttribute attr) {
-          _emit(" '''${attr.name.local}''': '''${attr.value}'''");
-        });
-        _emit(' }');
-      }
-      _emit(' )');
-      if (elem.children.isNotEmpty) {
-        _emit(' (');
-        _virtualizeNode(elem.children.first);
-        elem.children.skip(1).forEach((XmlNode n) {
-          _emit(' ,');
-          _virtualizeNode(n);
-        });
-        _emit(' )');
-      }
+      _virtualizeElement(node);
     } else if (node is XmlText) {
-      int textBindingIndex = -1;
-      int currentIndex = 0;
-      final value = new StringBuffer();
-      while((textBindingIndex = node.text.indexOf('{{', textBindingIndex + 1)) >= 0) {
-        int indexOfClosingParens = node.text.indexOf('}}', textBindingIndex + 1);
-        int bindingIndex = int.parse(node.text.substring(textBindingIndex + 2, indexOfClosingParens));
-        value
-            ..write(node.text.substring(currentIndex, textBindingIndex))
-            ..write('\${context.')
-            ..write((_bindings[bindingIndex] as TextBinding).expression)
-            ..write('}');
-        currentIndex = indexOfClosingParens + 2;
-      }
-      value.write(node.text.substring(currentIndex));
-      _emit(" vText('''${value}''')");
+      _virtualizeText(node);
     } else {
       throw 'Node type ${node.runtimeType} not yet supported.';
     }
+  }
+
+  void _virtualizeElement(XmlElement elem) {
+    _emit(" vElement('${elem.name.local}'");
+    if (elem.attributes.isNotEmpty) {
+      _emit(' , customAttrs: {');
+      elem.attributes.forEach((XmlAttribute attr) {
+        _emit(" '''${attr.name.local}''': '''${attr.value}'''");
+      });
+      _emit(' }');
+    }
+    _emit(' )');
+    if (elem.children.isNotEmpty) {
+      _emit(' (');
+      _virtualizeNode(elem.children.first);
+      elem.children.skip(1).forEach((XmlNode n) {
+        _emit(' ,');
+        _virtualizeNode(n);
+      });
+      _emit(' )');
+    }
+  }
+
+  void _virtualizeText(XmlText node) {
+    int textBindingIndex = -1;
+    int currentIndex = 0;
+    final value = new StringBuffer();
+    while((textBindingIndex = node.text.indexOf('{{', textBindingIndex + 1)) >= 0) {
+      int indexOfClosingParens = node.text.indexOf('}}', textBindingIndex + 1);
+      int bindingIndex = int.parse(node.text.substring(textBindingIndex + 2, indexOfClosingParens));
+      value
+          ..write(node.text.substring(currentIndex, textBindingIndex))
+          ..write('\${context.')
+          ..write((_bindings[bindingIndex] as TextBinding).expression)
+          ..write('}');
+      currentIndex = indexOfClosingParens + 2;
+    }
+    value.write(node.text.substring(currentIndex));
+    _emit(" vText('''${value}''')");
   }
 
   static final RegExp textBindings = new RegExp(r'\{\{[^(}})]*\}\}');
