@@ -15,7 +15,7 @@ dependencies:
 dev_dependencies:
   test: any
   path: any
-  html: any
+  xml: any
 transformers:
 - lambda:
     $include: web/tests/*

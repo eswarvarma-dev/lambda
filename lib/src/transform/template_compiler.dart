@@ -6,7 +6,7 @@ class TemplateCompiler {
   final String _template;
   final _buf = new StringBuffer();
 
-  Node _templateRoot;
+  XmlNode _templateRoot;
   final _bindings = <Binding>[];
 
   TemplateCompiler(this._componentClassName, this._template);
@@ -27,28 +27,28 @@ class TemplateCompiler {
     return _buf.toString();
   }
 
-  void _virtualizeNode(Node node) {
-    if (node is Element) {
-      Element elem = node;
-      _emit(" vElement('${elem.localName}'");
+  void _virtualizeNode(XmlNode node) {
+    if (node is XmlElement) {
+      XmlElement elem = node;
+      _emit(" vElement('${elem.name.local}'");
       if (elem.attributes.isNotEmpty) {
         _emit(' , customAttrs: {');
-        elem.attributes.forEach((String attrName, String attrValue) {
-          _emit(" '''${attrName}''': '''${attrValue}'''");
+        elem.attributes.forEach((XmlAttribute attr) {
+          _emit(" '''${attr.name.local}''': '''${attr.value}'''");
         });
         _emit(' }');
       }
       _emit(' )');
-      if (elem.hasChildNodes()) {
+      if (elem.children.isNotEmpty) {
         _emit(' (');
-        _virtualizeNode(elem.nodes.first);
-        elem.nodes.skip(1).forEach((Node n) {
+        _virtualizeNode(elem.children.first);
+        elem.children.skip(1).forEach((XmlNode n) {
           _emit(' ,');
           _virtualizeNode(n);
         });
         _emit(' )');
       }
-    } else if (node is Text) {
+    } else if (node is XmlText) {
       int textBindingIndex = -1;
       int currentIndex = 0;
       final value = new StringBuffer();
@@ -83,7 +83,7 @@ class TemplateCompiler {
       currentIndex = m.end;
     });
     clean.write(_template.substring(currentIndex));
-    _templateRoot = new HtmlParser(clean.toString()).parseFragment().children.single;
+    _templateRoot = parse(clean.toString()).rootElement;
   }
 
   void _emitComponentHeader() {

@@ -5,8 +5,7 @@ import 'package:analyzer/analyzer.dart';
 import 'package:analyzer/src/generated/ast.dart';
 import 'package:analyzer/src/generated/java_core.dart';
 import 'package:barback/barback.dart';
-import 'package:html/parser.dart';
-import 'package:html/dom.dart';
+import 'package:xml/xml.dart';
 import 'package:path/path.dart' as path;
 
 part 'src/transform/template_compiler.dart';
