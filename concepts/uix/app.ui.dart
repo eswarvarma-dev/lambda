@@ -1,9 +1,9 @@
 library app.ui;
 
-@Uses(const [Foreach])
 import 'package:lambda/lambda.dart';
 import 'package:lambda/foreach.dart';
 
+@LambdaUi(uses: const [Foreach])
 part 'app.gen.dart'; // generated part
 
 // Component: reusable & composable piece of interactive DOM

@@ -5,7 +5,7 @@ import 'package:lambda/lambda.dart';
 
 @LambdaUi()
 
-@View('<div class="button">{{title}}</div>')
+@View('<div id="greeting">hello</div>')
 class Button {
   String title;
 }

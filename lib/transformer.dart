@@ -1,11 +1,15 @@
-library lambda.compiler;
+library lambda.transformer;
 
 import 'dart:async';
 import 'package:analyzer/analyzer.dart';
 import 'package:analyzer/src/generated/ast.dart';
 import 'package:analyzer/src/generated/java_core.dart';
 import 'package:barback/barback.dart';
+import 'package:html/parser.dart';
+import 'package:html/dom.dart';
 import 'package:path/path.dart' as path;
+
+part 'src/transform/template_compiler.dart';
 
 class LambdaTransformer extends Transformer {
 
@@ -84,19 +88,13 @@ class _RewriterVisitor extends ToSourceVisitor {
     Annotation viewAnnotation = node.metadata
       .firstWhere((Annotation ann) => ann.name.name == 'View',
           orElse: () => null);
-    final componentClassName = node.name.name;
     if (viewAnnotation != null) {
       var template = viewAnnotation.arguments.arguments.single
           .accept(_evaluator);
       if (template is String) {
-        _genCode.writeln('''
-class ${componentClassName}\$Component extends LambdaComponent<Button> {
-  @override
-  build() {
-    return vElement('div');
-  }
-}
-''');
+        final componentClassName = node.name.name;
+        _genCode.writeln(
+          new TemplateCompiler(componentClassName, template).compile());
       } else {
         print('WARNING: @View template is not a String: $template');
       }
