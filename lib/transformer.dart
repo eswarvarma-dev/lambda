@@ -50,6 +50,8 @@ class _RewriterVisitor extends ToSourceVisitor {
   /// Contains rewritten `.ui.dart` code.
   final PrintStringWriter _uiCode;
 
+  String _viewClassName;
+
   _RewriterVisitor._private(this._genFileName, PrintStringWriter pw)
       : super(pw), _uiCode = pw;
 
@@ -92,6 +94,7 @@ class _RewriterVisitor extends ToSourceVisitor {
           .accept(_evaluator);
       if (template is String) {
         final componentClassName = node.name.name;
+        _viewClassName = '${componentClassName}\$View';
         _genCode.writeln(
           new TemplateCompiler(componentClassName, template).compile());
       } else {
@@ -99,5 +102,15 @@ class _RewriterVisitor extends ToSourceVisitor {
       }
     }
     return super.visitClassDeclaration(node);
+  }
+
+  @override
+  visitMethodDeclaration(MethodDeclaration node) {
+    if (node.isStatic && node.name.name == 'viewFactory') {
+      assert(_viewClassName != null);
+      _uiCode.print('static ${_viewClassName} viewFactory() => new ${_viewClassName}();');
+    } else {
+      return super.visitMethodDeclaration(node);
+    }
   }
 }

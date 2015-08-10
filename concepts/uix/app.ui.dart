@@ -9,6 +9,9 @@ part 'app.gen.dart'; // generated part
 // Component: reusable & composable piece of interactive DOM
 @View('<div class="button">{{title}}</div>')
 class Button {
+  // This is implemented by transformer
+  static LambdaView viewFactory() => null;
+
   String title;
 }
 
@@ -19,6 +22,9 @@ class Button {
 </form>
 ''')
 class Form {
+  // This is implemented by transformer
+  static LambdaView viewFactory() => null;
+
   String _actionName;
 }
 
@@ -31,6 +37,9 @@ class Form {
 </ul>
 ''')
 class Menu {
+  // This is implemented by transformer
+  static LambdaView viewFactory() => null;
+
   String prefix;
   List<String> items;
 }
@@ -49,6 +58,9 @@ class Menu {
 </table>
 ''')
 class Table {
+  // This is implemented by transformer
+  static LambdaView viewFactory() => null;
+
   List<Map<String, dynamic>> rows = [
     { 'num' : 1, 'pref' : 'a', 'cols' : [ 'foo', 'bar', 'baz' ]},
     { 'num' : 2, 'pref' : 'b', 'cols' : [ 'qux', 'quux', 'cruft' ]},
@@ -63,6 +75,9 @@ class Table {
 </div>
 ''')
 class MaterialInput {
+  // This is implemented by transformer
+  static LambdaView viewFactory() => null;
+
   String text;
 
   textChanged(String newText) {
