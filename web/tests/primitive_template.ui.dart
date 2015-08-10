@@ -6,11 +6,9 @@ import 'package:lambda/lambda.dart';
 @LambdaUi()
 
 @View('<div id="greeting">hello</div>')
-class Button {
-  String title;
-}
+class Button {}
 
 main() {
   initUix();
-  injectComponent(new Button$Component(), document.querySelector('#app-host'));
+  injectComponent(new Button$View(), document.querySelector('#app-host'));
 }
