@@ -1,24 +1,24 @@
 part of app.ui;
 
-class Button$Component extends LambdaComponent<Button> {
+class Button$View extends LambdaView<Button> {
   @override
   build() {
     return vElement('div', classes: ['button'])(context.title);
   }
 }
 
-class Form$Component extends LambdaComponent<Form> {
+class Form$View extends LambdaView<Form> {
   @override
   build() {
     final _0 = new Button()
       ..title = context._actionName;
     return vElement('form')(
-      vComponent(() => new Button$Component()..context = _0)
+      vComponent(() => new Button$View()..context = _0)
     );
   }
 }
 
-class Menu$Component extends LambdaComponent<Menu> {
+class Menu$View extends LambdaView<Menu> {
   @override
   build() {
     final _0 = new Foreach(this.context);
@@ -37,7 +37,7 @@ class Menu$Fragment$0 extends Fragment<Menu, String> {
   }
 }
 
-class Table$Component extends LambdaComponent<Table> {
+class Table$View extends LambdaView<Table> {
   @override
   VNode build() {
     final _0 = new Foreach(this.context);
@@ -67,7 +67,7 @@ class Table$Fragment$1 extends Fragment<Table, String> {
   }
 }
 
-class MaterialInput$Component extends LambdaComponent<MaterialInput> {
+class MaterialInput$View extends LambdaView<MaterialInput> {
   @override
   VNode build() {
     return vElement('div')(

@@ -12,8 +12,8 @@ class LambdaUi {
   const LambdaUi({List uses});
 }
 
-/// Describes the UI structure of a component using Angular-ish template
-/// language.
+/// This annotation describes the UI structure of a component using Angular-ish
+/// template language.
 class View {
   final String code;
   const View(this.code);
@@ -29,7 +29,7 @@ abstract class Widget<C> {
 /// Building block of a UI.
 ///
 /// [C] is the type of the [context] object.
-abstract class LambdaComponent<C> extends Component implements Widget {
+abstract class LambdaView<C> extends Component implements Widget {
 
   C context;
 
@@ -42,7 +42,7 @@ abstract class LambdaComponent<C> extends Component implements Widget {
 
   List<VNode> renderFragment(FragmentController fragmentController,
       Fragment fragmentFactory(), dynamic input) {
-    fragmentController.render(input).map((item) {
+    return fragmentController.render(input).map((item) {
       final fragment = fragmentFactory()
         ..context = this.context
         ..data = data;
@@ -74,7 +74,7 @@ abstract class Fragment<C, T> implements Widget {
 
   List<VNode> renderFragment(FragmentController fragmentController,
       Fragment fragmentFactory(), dynamic input) {
-    fragmentController.render(input).map((item) {
+    return fragmentController.render(input).map((item) {
       final fragment = fragmentFactory()
         ..context = this.context
         ..parent = this

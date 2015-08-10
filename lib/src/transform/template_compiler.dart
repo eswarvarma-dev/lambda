@@ -2,22 +2,22 @@ part of lambda.transformer;
 
 /// Turns a Lambda template to Dart code.
 class TemplateCompiler {
-  final String _componentClassName;
+  final String _controllerClassName;
   final String _template;
   final _buf = new StringBuffer();
 
   XmlNode _templateRoot;
   final _bindings = <Binding>[];
 
-  TemplateCompiler(this._componentClassName, this._template);
+  TemplateCompiler(this._controllerClassName, this._template);
 
   String compile() {
     _parseTemplate();
-    _emitComponentHeader();
+    _emitViewHeader();
     _emit(' return');
     _virtualizeNode(_templateRoot);
     _emit(' ;');
-    _emitComponentFooter();
+    _emitViewFooter();
     return _buf.toString();
   }
 
@@ -38,7 +38,14 @@ class TemplateCompiler {
   }
 
   void _virtualizeElement(XmlElement elem) {
-    _emit(" vElement('${elem.name.local}'");
+    final elemName = elem.name.local;
+
+    if (elemName[0] == elemName[0].toLowerCase()) {
+      _emit(" vElement('${elemName}'");
+    } else {
+      _emit(" vComponent(${elemName}.viewFactory");
+    }
+
     if (elem.attributes.isNotEmpty) {
       _emit(' , customAttrs: {');
       elem.attributes.forEach((XmlAttribute attr) {
@@ -93,16 +100,16 @@ class TemplateCompiler {
     _templateRoot = parse(clean.toString()).rootElement;
   }
 
-  void _emitComponentHeader() {
+  void _emitViewHeader() {
     _emit(
-      ' class ${_componentClassName}\$Component'
-      ' extends LambdaComponent<Button> {'
+      ' class ${_controllerClassName}\$View'
+      ' extends LambdaView<Button> {'
       ' @override'
       ' build() {'
     );
   }
 
-  void _emitComponentFooter() {
+  void _emitViewFooter() {
     _emit('} }');
   }
 

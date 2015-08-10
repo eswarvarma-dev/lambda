@@ -39,6 +39,19 @@ main() {
         """ vElement('span' ) ( vText('''\${context.greeting},''') ) ,"""
         """ vElement('span' ) ( vText('''\${context.person}''') ) )"""
     );
+
+    compileTest(
+      'child component',
+      '<Child/>',
+      """ vComponent(Child.viewFactory )"""
+    );
+
+    compileTest(
+      'nested child component',
+      '<div><Child/></div>',
+      """ vElement('div' ) ("""
+        """ vComponent(Child.viewFactory ) )"""
+    );
   });
 }
 
