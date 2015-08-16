@@ -64,6 +64,9 @@ class Table {
   <input type="text">
 </div>
 ''')
+class MaterialInput {
+  var currentTheme;
+}
 
 // TODO: DI
 // TODO: events

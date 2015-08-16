@@ -29,9 +29,12 @@ abstract class Widget<C> {
 /// Building block of a UI.
 ///
 /// [C] is the type of the [context] object.
-abstract class LambdaView<C> extends Component implements Widget {
+abstract class LambdaView<C> extends Component<C> implements Widget {
+  C get context => super.data;
 
-  C context;
+  set context(C ctx) {
+    super.data = ctx;
+  }
 
   @override
   updateView() {

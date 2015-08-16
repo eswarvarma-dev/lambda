@@ -52,12 +52,18 @@ main() {
       """ vElement('div' ) ("""
         """ vComponent(Child.viewFactory ) )"""
     );
+
+    // compileTest(
+    //   'data binding',
+    //   '<Button [title]="_actionName" />',
+    //   """ vComponent"""
+    // );
   });
 }
 
 void compileTest(String description, String template, String expectation) {
   test(description, () {
     final compiler = new TemplateCompiler('Foo', template);
-    expect(compiler.compileBuildBodyForTesting(), expectation);
+    expect(compiler.compileVirtualTreeForTesting(), expectation);
   });
 }

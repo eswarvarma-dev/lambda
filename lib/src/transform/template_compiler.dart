@@ -5,9 +5,9 @@ class TemplateCompiler {
   final String _controllerClassName;
   final String _template;
   final _buf = new StringBuffer();
+  final _bindings = <Binding>[];
 
   XmlNode _templateRoot;
-  final _bindings = <Binding>[];
 
   TemplateCompiler(this._controllerClassName, this._template);
 
@@ -21,7 +21,7 @@ class TemplateCompiler {
     return _buf.toString();
   }
 
-  String compileBuildBodyForTesting() {
+  String compileVirtualTreeForTesting() {
     _parseTemplate();
     _virtualizeNode(_templateRoot);
     return _buf.toString();
@@ -106,6 +106,7 @@ class TemplateCompiler {
       ' extends LambdaView<Button> {'
       ' @override'
       ' build() {'
+      ' final context = new ${_controllerClassName}();'
     );
   }
 
