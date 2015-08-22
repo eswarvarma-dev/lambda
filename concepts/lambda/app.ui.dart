@@ -1,5 +1,6 @@
 library app.ui;
 
+import 'dart:html';
 import 'package:lambda/lambda.dart';
 import 'package:lambda/foreach.dart';
 
