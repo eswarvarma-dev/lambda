@@ -1,8 +1,8 @@
 # Goals
 
-A mobile-first web UI toolkit for material design UIs.
+Premise: a mobile-first web UI toolkit for material design UIs.
 
-- Combine the best of Angular with the best of React (remove everything else):
+- Features:
   * HTML-ish templates - Angular, React/JSX
   * directives (decorators, fragment controllers) - Angular
   * dependency injection - Angular
@@ -12,7 +12,7 @@ A mobile-first web UI toolkit for material design UIs.
     - to download (tree-shake, no mirrors)
     - to bootstrap (pre-compile everything) - React
     - to run (monomorphic change detection, template cloning, view reuse) - Angular
-- Best possible dev experience:
+- Excellent dev experience:
   * be Darty
   * DDC-ready
   * instant transformation
@@ -20,7 +20,6 @@ A mobile-first web UI toolkit for material design UIs.
   * lexical scope everywhere
   * direct access to DOM, domain-specific nodes
 - Laser-focus:
-  * One complete solution >> many incomplete solutions
   * Web-only
   * Dart-only
   * Mobile-first
@@ -30,17 +29,14 @@ A mobile-first web UI toolkit for material design UIs.
 # Plan
 
 1. MVP:
-  - compile to UIX
-  - 'hello world' <200kb minified, <80kb gzipped, <2s load (~Moto G 2015)
+  - file-by-file transformer
+  - 'hello world' <150kb minified, <60kb gzipped, <2s load (~Moto X 2014)
   - match UIX/React on load time
 1. MVP+1:
-  - One of:
-    1. UIX is both DDC-compliant && supports fat-node implementation
-    1. Move off UIX in favor of a custom-built DDC-compliant VDOM that implements
-      fat node
-  - implement "fat node" that speeds up view instantiation via:
-    1. DOM cloning
-    1. DOM reuse (a la ng2 view reuse)
   - dependency injection
-  - CSS encapsulation & tree-shaking
+  - view instantiation optimization:
+    1. DOM reuse (a la ng2 view reuse)
+    1. DOM cloning?
+  - CSS encapsulation
+  - CSS tree-shaking
   - match ng2 on post-load performance
