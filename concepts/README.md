@@ -6,7 +6,8 @@ A mobile-first web UI toolkit for material design UIs.
   * HTML-ish templates - Angular, React/JSX
   * directives (decorators, fragment controllers) - Angular
   * dependency injection - Angular
-  * create, do not mutate - React
+  * change detection - Angular
+  * zones - Angular
   * be fast:
     - to download (tree-shake, no mirrors)
     - to bootstrap (pre-compile everything) - React
