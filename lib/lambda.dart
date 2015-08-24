@@ -59,11 +59,6 @@ abstract class LambdaView<C> extends Component<C> implements Widget {
 /// an input value into a [List] of items, each corresponding to an instance
 /// of a template fragment.
 abstract class FragmentController<C, T, E> {
-
-  final C context;
-
-  FragmentController(this.context);
-
   List<E> render(T input);
 }
 

@@ -1,16 +1,16 @@
 library app.ui;
 
-import 'dart:html';
-import 'package:lambda/lambda.dart';
-import 'package:lambda/foreach.dart';
+import 'lambda.dart';
+import 'foreach.dart';
 
 @LambdaUi(uses: const [Foreach])
 
 part 'app.gen.dart'; // generated part
 
 // Component: reusable & composable piece of interactive DOM
-@View('<div class="button">{{title}}</div>')
+@View('<div [id]="id" class="button">{{title}}</div>')
 class Button {
+  String id;
   String title;
 }
 
@@ -27,9 +27,9 @@ class Form {
 // Fragments: control UI structure
 @View('''
 <ul>
-  <% Foreach(items) : String item %>
+  <% Foreach(items)(String item) { %>
     <li>{{prefix}} - {{item}}</li>
-  <% /Foreach %>
+  <% } %>
 </ul>
 ''')
 class Menu {
@@ -40,14 +40,14 @@ class Menu {
 // Example: fragments can nest
 @View('''
 <table>
-  <% Foreach(rows) : Map<String, String> row %>
+  <% Foreach(rows)(Map<String, String> row) { %>
     <tr>
       <td>{{row['num']}}</td>
-      <% Foreach(row['cols']) : String col %>
+      <% Foreach(row['cols'])(String col) { %>
         <td>{{row['pref']}} - {{col}}</td>
-      <% /Foreach %>
+      <% } %>
     </tr>
-  <% /Foreach %>
+  <% } %>
 </table>
 ''')
 class Table {
@@ -70,5 +70,7 @@ class MaterialInput {
 
 // TODO: DI
 // TODO: events
-// TODO: property adapters
+// TODO: property adapters - decorators?
 // TODO: imperative views
+// TODO: child queries
+// TODO: locals
