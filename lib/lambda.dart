@@ -1,9 +1,11 @@
 library lambda;
 
-// Lambda aim to be a mix of React and Angular. Currently it uses uix as
-// the reactive UI implementation.
-import 'package:uix/uix.dart';
-export 'package:uix/uix.dart';
+import 'dart:html';
+export 'dart:html';
+
+void mountView(ViewObject view, {Element onto}) {
+  
+}
 
 /// A noop annotation that causes Dart analyzer to shut up about "unused"
 /// imports. Because Lambda template language can refer to symbols, it requires
@@ -19,69 +21,112 @@ class View {
   const View(this.code);
 }
 
-abstract class Widget<C> {
-
-  C get context;
-
-  /* VNode | List<VNode> */ build();
-}
-
-/// Building block of a UI.
-///
-/// [C] is the type of the [context] object.
-abstract class LambdaView<C> extends Component<C> implements Widget {
-  C get context => super.data;
-
-  set context(C ctx) {
-    super.data = ctx;
-  }
-
-  @override
-  updateView() {
-    updateRoot(vRoot()(build()));
-  }
-
-  /* VNode | List<VNode> */ build();
-
-  List<VNode> renderFragment(FragmentController fragmentController,
-      Fragment fragmentFactory(), dynamic input) {
-    return fragmentController.render(input).map((item) {
-      final fragment = fragmentFactory()
-        ..context = this.context
-        ..data = data;
-      return fragment.build();
-    }).toList();
-  }
-}
-
 /// Used within the `<% ... %>` template blocks. Controls the creation of
 /// fragments of templates enclosed within the fragment block by converting
 /// an input value into a [List] of items, each corresponding to an instance
 /// of a template fragment.
-abstract class FragmentController<C, T, E> {
+abstract class FragmentModelController<C, T, E> {
   List<E> render(T input);
 }
 
-abstract class Fragment<C, T> implements Widget {
+typedef ViewObject FragmentFactory(ViewObject parentView, dynamic data);
 
-  C context;
-  Fragment parent;
-  T data;
+class FragmentController {
+  final FragmentModelController _controller;
+  final ViewObject _parentView;
+  final FragmentFactory _factory;
+  final _fragments = <ViewObject>[];
+  Element placeholder;
 
-  VNode build();
+  FragmentController(this._controller, this._parentView, this._factory);
 
-  List<VNode> renderFragment(FragmentController fragmentController,
-      Fragment fragmentFactory(), dynamic input) {
-    return fragmentController.render(input).map((item) {
-      final fragment = fragmentFactory()
-        ..context = this.context
-        ..parent = this
-        ..data = data;
-      return fragment.build();
-    }).toList();
+  void update(dynamic input) {
+    // TODO: super naive implementation
+    List items = _controller.render(input);
+    for (int i = 0; i < _fragments.length; i++) {
+      _fragments[i].detach();
+    }
+    _fragments.clear();
+    for (int i = 0; i < items.length; i++) {
+      final item = items[i];
+      final fragment = _factory(_parentView, item);
+    }
   }
 }
 
-abstract class Decorator<C> {
+final _buildStack = <Element>[];
+int _buildStackPointer = -1;
+
+abstract class ViewObject<C> {
   C context;
+  Element hostElement;
+  List<Node> ownedNodes;
+
+  void build();
+  void update();
+}
+
+abstract class ViewObjectBuilder<C> extends ViewObject<C> {
+
+  void beginHost(String tag) {
+    assert(_buildStack.isEmpty);
+    assert(_buildStackPointer == 0);
+    hostElement = new Element.tag(tag);
+    _buildStackPointer++;
+    _buildStack[_buildStackPointer] = hostElement;
+  }
+
+  void endHost() {
+    assert(_buildStackPointer == 0);
+    _buildStack.clear();
+    _buildStackPointer = -1;
+  }
+
+  Element beginElement(String tag) {
+    Element element = new Element.tag(tag);
+    Element parent = _buildStack[_buildStackPointer];
+    parent.append(element);
+    _buildStackPointer++;
+    _buildStack[_buildStackPointer] = element;
+    return element;
+  }
+
+  Element beginOwnedElement(String tag) {
+    Element element = new Element.tag(tag);
+    Element parent = _buildStack[_buildStackPointer];
+    parent.append(element);
+    _buildStackPointer++;
+    _buildStack[_buildStackPointer] = element;
+    if (_buildStackPointer == 0) {
+      ownedNodes.add(element);
+    }
+    return element;
+  }
+
+  Element beginChild(ViewObject child) {
+    Element childHostElement = child.hostElement;
+    Element parent = _buildStack[_buildStackPointer];
+    parent.append(childHostElement);
+    _buildStackPointer++;
+    _buildStack[_buildStackPointer] = childHostElement;
+    return childHostElement;
+  }
+
+  Element addFragmentPlaceholder(FragmentController controller) {
+    Element placeholder = new TemplateElement();
+    Element parent = _buildStack[_buildStackPointer];
+    parent.append(placeholder);
+    _buildStackPointer++;
+    _buildStack[_buildStackPointer] = placeholder;
+    controller.placeholder = placeholder;
+    return placeholder;
+  }
+
+  void addClass(String className) {
+    _buildStack[_buildStackPointer].classes.add(className);
+  }
+
+  void endElement() {
+    _buildStackPointer--;
+  }
 }

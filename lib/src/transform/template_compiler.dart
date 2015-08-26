@@ -14,6 +14,7 @@ class TemplateCompiler {
   String compile() {
     _parseTemplate();
     _emitViewHeader();
+    _emitBuildHeader();
     _emit(' return');
     _virtualizeNode(_templateRoot);
     _emit(' ;');
@@ -41,9 +42,9 @@ class TemplateCompiler {
     final elemName = elem.name.local;
 
     if (elemName[0] == elemName[0].toLowerCase()) {
-      _emit(" vElement('${elemName}'");
+      _emit(" beginElement('${elemName}'");
     } else {
-      _emit(" vComponent(${elemName}.viewFactory");
+      _emit(" beginChild(${elemName}.viewFactory()");
     }
 
     if (elem.attributes.isNotEmpty) {
@@ -63,6 +64,7 @@ class TemplateCompiler {
       });
       _emit(' )');
     }
+    _emit(' endElement();');
   }
 
   void _virtualizeText(XmlText node) {
@@ -103,15 +105,24 @@ class TemplateCompiler {
   void _emitViewHeader() {
     _emit(
       ' class ${_controllerClassName}\$View'
-      ' extends LambdaView<Button> {'
+      ' extends ViewObject<Button> {'
+    );
+  }
+
+  void _emitBuildHeader() {
+    _emit(
       ' @override'
       ' build() {'
       ' final context = new ${_controllerClassName}();'
+      ' beginHost(\'${_controllerClassName}\');'
     );
   }
 
   void _emitViewFooter() {
-    _emit('} }');
+    _emit(
+      ' endHost();'
+      ' } }'
+    );
   }
 
   void _emit(Object o) {
