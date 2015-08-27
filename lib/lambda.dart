@@ -4,7 +4,8 @@ import 'dart:html';
 export 'dart:html';
 
 void mountView(ViewObject view, {Element onto}) {
-  
+  view.build();
+  onto.append(view.hostElement);
 }
 
 /// A noop annotation that causes Dart analyzer to shut up about "unused"
@@ -50,11 +51,12 @@ class FragmentController {
     for (int i = 0; i < items.length; i++) {
       final item = items[i];
       final fragment = _factory(_parentView, item);
+      _fragments.add(fragment);
     }
   }
 }
 
-final _buildStack = <Element>[];
+final _buildStack = new List<Element>(100);
 int _buildStackPointer = -1;
 
 abstract class ViewObject<C> {
@@ -64,6 +66,18 @@ abstract class ViewObject<C> {
 
   void build();
   void update();
+
+  void detach() {
+    if (hostElement != null) {
+      hostElement.remove();
+    }
+    if (ownedNodes != null && ownedNodes.isNotEmpty) {
+      final len = ownedNodes.length;
+      for (int i = 0; i < len; i++) {
+        ownedNodes[i].remove();
+      }
+    }
+  }
 }
 
 abstract class ViewObjectBuilder<C> extends ViewObject<C> {
@@ -78,11 +92,11 @@ abstract class ViewObjectBuilder<C> extends ViewObject<C> {
 
   void endHost() {
     assert(_buildStackPointer == 0);
-    _buildStack.clear();
+    _buildStack.fillRange(0, 100);
     _buildStackPointer = -1;
   }
 
-  Element beginElement(String tag) {
+  Element beginElement(String tag, {Map<String, String> attrs}) {
     Element element = new Element.tag(tag);
     Element parent = _buildStack[_buildStackPointer];
     parent.append(element);
@@ -128,5 +142,12 @@ abstract class ViewObjectBuilder<C> extends ViewObject<C> {
 
   void endElement() {
     _buildStackPointer--;
+  }
+
+  Node addText(String text) {
+    Element parent = _buildStack[_buildStackPointer];
+    Text textNode = new Text(text);
+    parent.append(textNode);
+    return textNode;
   }
 }

@@ -6,12 +6,13 @@ authors:
 homepage: https://github.com/yjbanov/lambda
 sdk: ">=1.10.0"
 dependencies:
-  uix:
-    git: https://github.com/localvoid/uix
   analyzer: ">=0.25.0 <0.26.0"
   args: any
   barback: ">=0.15.2 <0.16.0"
   browser: ">=0.10.0+2 <0.11.0"
+  dart_style: any
+  uix:
+    git: https://github.com/localvoid/uix
 dev_dependencies:
   test: any
   path: any
@@ -20,7 +21,7 @@ transformers:
 - lambda:
     $include: web/tests/*
 - $dart2js:
-    $exclude: web
+#    $exclude: web
     minify: true
     commandLineOptions:
     - --dump-info

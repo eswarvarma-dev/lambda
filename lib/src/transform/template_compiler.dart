@@ -13,16 +13,20 @@ class TemplateCompiler {
 
   String compile() {
     _parseTemplate();
+
     _emitViewHeader();
+
     _emitBuildHeader();
-    _emit(' return');
     _virtualizeNode(_templateRoot);
-    _emit(' ;');
+    _emitBuildFooter();
+
+    _emitUpdateMethod();
+
     _emitViewFooter();
     return _buf.toString();
   }
 
-  String compileVirtualTreeForTesting() {
+  String compileVirtualTreeForTesting_() {
     _parseTemplate();
     _virtualizeNode(_templateRoot);
     return _buf.toString();
@@ -46,24 +50,19 @@ class TemplateCompiler {
     } else {
       _emit(" beginChild(${elemName}.viewFactory()");
     }
-
     if (elem.attributes.isNotEmpty) {
-      _emit(' , customAttrs: {');
+      _emit(' , attrs: const {');
       elem.attributes.forEach((XmlAttribute attr) {
         _emit(" '''${attr.name.local}''': '''${attr.value}'''");
       });
       _emit(' }');
     }
-    _emit(' )');
-    if (elem.children.isNotEmpty) {
-      _emit(' (');
-      _virtualizeNode(elem.children.first);
-      elem.children.skip(1).forEach((XmlNode n) {
-        _emit(' ,');
-        _virtualizeNode(n);
-      });
-      _emit(' )');
-    }
+    _emit(' );');
+
+    elem.children.forEach((XmlNode n) {
+      _virtualizeNode(n);
+    });
+
     _emit(' endElement();');
   }
 
@@ -71,18 +70,20 @@ class TemplateCompiler {
     int textBindingIndex = -1;
     int currentIndex = 0;
     final value = new StringBuffer();
-    while((textBindingIndex = node.text.indexOf('{{', textBindingIndex + 1)) >= 0) {
+    while ((textBindingIndex = node.text.indexOf('{{', textBindingIndex + 1)) >=
+        0) {
       int indexOfClosingParens = node.text.indexOf('}}', textBindingIndex + 1);
-      int bindingIndex = int.parse(node.text.substring(textBindingIndex + 2, indexOfClosingParens));
+      int bindingIndex = int.parse(
+          node.text.substring(textBindingIndex + 2, indexOfClosingParens));
       value
-          ..write(node.text.substring(currentIndex, textBindingIndex))
-          ..write('\${context.')
-          ..write((_bindings[bindingIndex] as TextBinding).expression)
-          ..write('}');
+        ..write(node.text.substring(currentIndex, textBindingIndex))
+        ..write('\${context.')
+        ..write((_bindings[bindingIndex] as TextBinding).expression)
+        ..write('}');
       currentIndex = indexOfClosingParens + 2;
     }
     value.write(node.text.substring(currentIndex));
-    _emit(" vText('''${value}''')");
+    _emit(" addText('''${value}''');");
   }
 
   static final RegExp textBindings = new RegExp(r'\{\{[^(}})]*\}\}');
@@ -103,26 +104,28 @@ class TemplateCompiler {
   }
 
   void _emitViewHeader() {
-    _emit(
-      ' class ${_controllerClassName}\$View'
-      ' extends ViewObject<Button> {'
-    );
+    _emit(' class ${_controllerClassName}\$View'
+        ' extends ViewObjectBuilder<Button> {');
   }
 
   void _emitBuildHeader() {
-    _emit(
-      ' @override'
-      ' build() {'
-      ' final context = new ${_controllerClassName}();'
-      ' beginHost(\'${_controllerClassName}\');'
-    );
+    _emit(' @override'
+        ' build() {'
+        ' final context = new ${_controllerClassName}();'
+        ' beginHost(\'${_controllerClassName}\');');
+  }
+
+  void _emitBuildFooter() {
+    _emit(' endHost(); }');
+  }
+
+  void _emitUpdateMethod() {
+    _emit(' @override update() {');
+    _emit(' }');
   }
 
   void _emitViewFooter() {
-    _emit(
-      ' endHost();'
-      ' } }'
-    );
+    _emit('}');
   }
 
   void _emit(Object o) {

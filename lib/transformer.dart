@@ -7,11 +7,14 @@ import 'package:analyzer/src/generated/java_core.dart';
 import 'package:barback/barback.dart';
 import 'package:xml/xml.dart';
 import 'package:path/path.dart' as path;
+import 'package:dart_style/dart_style.dart';
 
 part 'src/transform/template_compiler.dart';
 
-class LambdaTransformer extends Transformer {
+final _formatter = new DartFormatter();
+String _fmt(String code) => _formatter.format(code);
 
+class LambdaTransformer extends Transformer {
   LambdaTransformer.asPlugin();
 
   static const _EXTENSION = '.ui.dart';
@@ -26,17 +29,19 @@ class LambdaTransformer extends Transformer {
     final asset = transform.primaryInput;
     final directory = path.dirname(asset.id.path);
     // call basenameWithoutExtension because we use double-extension
-    final baseName = path.basenameWithoutExtension(
-      path.basenameWithoutExtension(asset.id.path));
+    final baseName = path
+        .basenameWithoutExtension(path.basenameWithoutExtension(asset.id.path));
     final genFileName = '${baseName}.gen.dart';
     final visitor = new _RewriterVisitor(genFileName);
     ast.accept(visitor);
     String genPath = transform.primaryInput.id.path;
     genPath = path.join(directory, genFileName);
     final genAssetId = new AssetId(transform.primaryInput.id.package, genPath);
-    transform.addOutput(new Asset.fromString(genAssetId, visitor.genCode));
+    final formattedGenCode = _fmt(visitor.genCode);
+    final formattedUiCode = _fmt(visitor.uiCode);
+    transform.addOutput(new Asset.fromString(genAssetId, formattedGenCode));
     transform.addOutput(
-      new Asset.fromString(transform.primaryInput.id, visitor.uiCode));
+        new Asset.fromString(transform.primaryInput.id, formattedUiCode));
   }
 }
 
@@ -53,7 +58,8 @@ class _RewriterVisitor extends ToSourceVisitor {
   String _viewClassName;
 
   _RewriterVisitor._private(this._genFileName, PrintStringWriter pw)
-      : super(pw), _uiCode = pw;
+      : super(pw),
+        _uiCode = pw;
 
   String get genCode => _genCode.toString();
   String get uiCode => _uiCode.toString();
@@ -86,17 +92,16 @@ class _RewriterVisitor extends ToSourceVisitor {
 
   @override
   AstNode visitClassDeclaration(ClassDeclaration node) {
-    Annotation viewAnnotation = node.metadata
-      .firstWhere((Annotation ann) => ann.name.name == 'View',
-          orElse: () => null);
+    Annotation viewAnnotation = node.metadata.firstWhere(
+        (Annotation ann) => ann.name.name == 'View', orElse: () => null);
     if (viewAnnotation != null) {
-      var template = viewAnnotation.arguments.arguments.single
-          .accept(_evaluator);
+      var template =
+          viewAnnotation.arguments.arguments.single.accept(_evaluator);
       if (template is String) {
         final componentClassName = node.name.name;
         _viewClassName = '${componentClassName}\$View';
         _genCode.writeln(
-          new TemplateCompiler(componentClassName, template).compile());
+            new TemplateCompiler(componentClassName, template).compile());
       } else {
         print('WARNING: @View template is not a String: $template');
       }
@@ -108,7 +113,8 @@ class _RewriterVisitor extends ToSourceVisitor {
   visitMethodDeclaration(MethodDeclaration node) {
     if (node.isStatic && node.name.name == 'viewFactory') {
       assert(_viewClassName != null);
-      _uiCode.print('static ${_viewClassName} viewFactory() => new ${_viewClassName}();');
+      _uiCode.print(
+          'static ${_viewClassName} viewFactory() => new ${_viewClassName}();');
     } else {
       return super.visitMethodDeclaration(node);
     }
