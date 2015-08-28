@@ -9,7 +9,7 @@ import 'package:xml/xml.dart';
 import 'package:path/path.dart' as path;
 import 'package:dart_style/dart_style.dart';
 
-part 'src/transform/template_compiler.dart';
+part 'src/transform/compiler.dart';
 
 final _formatter = new DartFormatter();
 String _fmt(String code) => _formatter.format(code);

@@ -1,4 +1,4 @@
-part of lambda.transformer;
+part of lambda.compiler;
 
 /// Turns a Lambda template to Dart code.
 class TemplateCompiler {
@@ -6,7 +6,9 @@ class TemplateCompiler {
   final String _template;
   final _buf = new StringBuffer();
   final _bindings = <Binding>[];
+  final _elements = <XmlElement, int>{};
 
+  int _elementCounter = 0;
   XmlNode _templateRoot;
 
   TemplateCompiler(this._controllerClassName, this._template);
@@ -43,6 +45,7 @@ class TemplateCompiler {
   }
 
   void _virtualizeElement(XmlElement elem) {
+    _elements[elem] = _elementCounter++;
     final elemName = elem.name.local;
 
     if (elemName[0] == elemName[0].toLowerCase()) {

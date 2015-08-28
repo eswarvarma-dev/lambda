@@ -1,6 +1,6 @@
 library app.ui;
 
-import 'lambda.dart';
+import 'package:lambda/lambda.dart';
 import 'foreach.dart';
 
 @LambdaUi(uses: const [Foreach])

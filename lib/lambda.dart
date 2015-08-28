@@ -144,6 +144,13 @@ abstract class ViewObjectBuilder<C> extends ViewObject<C> {
     _buildStackPointer--;
   }
 
+  Node addTextInterpolation() {
+    Element parent = _buildStack[_buildStackPointer];
+    Text textNode = new Text(' ');
+    parent.append(textNode);
+    return textNode;
+  }
+
   Node addText(String text) {
     Element parent = _buildStack[_buildStackPointer];
     Text textNode = new Text(text);

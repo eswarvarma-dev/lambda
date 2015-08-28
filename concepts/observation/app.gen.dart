@@ -1,8 +1,10 @@
 part of app.ui;
 
+@View('<div [id]="id" class="button">{{title}}</div>')
 class Button$View extends ViewObjectBuilder<Button> {
-  // Bound elements
-  Element _boundElement0;
+  // Bound nodes
+  Element _boundNode0;
+  Text _boundNode1;
 
   // Watched values
   String _property0_0;
@@ -12,25 +14,31 @@ class Button$View extends ViewObjectBuilder<Button> {
   void build() {
     context = new Button();  // TODO: DI can take place here
     beginHost('Button');
-      _boundElement0 = beginElement('div');
+      _boundNode0 = beginElement('div');
         addClass('button');
+        _boundNode1 = addTextInterpolation();
       endElement();
     endHost();
   }
 
   @override
   void update() {
-    var t0_0 = context.title;
-    if (t0_0 != _text0_0) {
-      _boundElement0.text = _text0_0 = t0_0;
-    }
     var p0_0 = context.id;
     if (p0_0 != _property0_0) {
-      _boundElement0.id = _property0_0 = p0_0;
+      _boundNode0.id = _property0_0 = p0_0;
+    }
+    var t0_0 = context.title;
+    if (t0_0 != _text0_0) {
+      _boundNode1.text = _text0_0 = t0_0;
     }
   }
 }
 
+@View('''
+<form>
+  <Button [title]="_actionName" />
+</form>
+''')
 class Form$View extends ViewObjectBuilder<Form> {
   Button$View _child0;
 

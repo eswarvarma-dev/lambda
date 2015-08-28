@@ -1,4 +1,4 @@
-library lambda.template_compiler.test;
+library lambda.compiler.test;
 
 import 'package:test/test.dart';
 import 'package:lambda/transformer.dart';
@@ -39,7 +39,10 @@ main() {
     // compileTest(
     //   'text interpolation',
     //   '<div>{{greeting}}</div>',
-    //   """ vElement('div' ) ( vText('''\${context.greeting}''') )"""
+    //   """
+    //   beginElement('div' );
+    //   endElement();
+    //   """
     // );
     //
     // compileTest(
