@@ -71,7 +71,11 @@ class LambdaTemplateGrammarDefinition extends GrammarDefinition {
         .seq(char('>'))
       ))
     .map((List tokens) {
-      return astNodeFactory(tokens[1]);
+      Element elem = astNodeFactory(tokens[1]);
+      if (tokens[2] is List) {
+        elem.childNodes.addAll(tokens[2][1]);
+      }
+      return elem;
     });
 
   // TODO: differentiate between html and component names:

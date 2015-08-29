@@ -34,7 +34,7 @@ abstract class AstNode {
 }
 
 abstract class AstNodeWithChildren extends AstNode {
-  Iterable<AstNode> get children;
+  List<AstNode> get children;
 
   @override
   void accept(AstVisitor visitor) {
@@ -57,7 +57,7 @@ abstract class Element extends AstNodeWithChildren {
   final propertyBindings = <PropertyBinding>[];
   final childNodes = <AstNode>[];
 
-  Iterable<AstNode> get children =>
+  List<AstNode> get children =>
       new List<AstNode>.from(propertyBindings)..addAll(childNodes);
 
   String _stringify(String tag) =>

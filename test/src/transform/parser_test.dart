@@ -87,6 +87,23 @@ main() {
         expect((tmpl.children[4] as HtmlElement).tag, 'div');
       });
     });
+
+    group('nested', () {
+      parserTest('element > plain text', '<a>b</a>', (Template tmpl) {
+        expect(tmpl.children, hasLength(1));
+        HtmlElement elem = tmpl.children[0];
+        expect(elem.tag, 'a');
+        expect((elem.children[0] as PlainText).text, 'b');
+      });
+      parserTest('element > elements', '<a><b/>{{c}}<D/></a>', (Template tmpl) {
+        expect(tmpl.children, hasLength(1));
+        HtmlElement elem = tmpl.children[0];
+        expect(elem.tag, 'a');
+        expect((elem.children[0] as HtmlElement).tag, 'b');
+        expect((elem.children[1] as TextInterpolation).expression, 'c');
+        expect((elem.children[2] as ComponentElement).type, 'D');
+      });
+    });
   });
 }
 
