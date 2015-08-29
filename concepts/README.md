@@ -4,6 +4,7 @@ Premise: a mobile-first web UI toolkit for material design UIs.
 
 - Features:
   * HTML-ish templates - Angular, React/JSX
+    * readability > conciseness
   * directives (decorators, fragment controllers) - Angular
   * dependency injection - Angular
   * change detection - Angular
