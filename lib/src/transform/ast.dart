@@ -53,9 +53,9 @@ class Template extends AstNodeWithChildren {
 }
 
 abstract class Element extends AstNodeWithChildren {
-  Map<String, String> attributes;
-  List<PropertyBinding> propertyBindings;
-  List<AstNode> childNodes;
+  final attributes = <String, String>{};
+  final propertyBindings = <PropertyBinding>[];
+  final childNodes = <AstNode>[];
 
   Iterable<AstNode> get children =>
       new List<AstNode>.from(propertyBindings)..addAll(childNodes);

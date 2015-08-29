@@ -27,10 +27,39 @@ class LambdaTemplateGrammarDefinition extends GrammarDefinition {
     return new Template()..children.addAll(rootNodes);
   });
 
-  content() => (ref(htmlElement) | ref(plainText)).star();
+  content() => (
+      ref(htmlElement)
+    | ref(componentElement)
+    | ref(textInterpolation)
+    | ref(plainText)
+  ).star();
 
-  htmlElement() => char('<')
-    .seq(ref(htmlElementName))
+  textInterpolation() =>
+    string('{{')
+    .seq(pattern('a-z.A-Z').plus().flatten())  // TODO: accept more
+    .seq(string('}}')).map((List tokens) {
+      return new TextInterpolation()
+        ..expression = tokens[1];
+    });
+
+  expression() =>
+    (pattern('a-zA-Z').plus())
+    .optional(char('.').seq((pattern('a-zA-Z').plus())))
+    .flatten();
+
+  htmlElement() => element(ref(htmlElementName), (String name) {
+    return new HtmlElement()
+      ..tag = name;
+  });
+
+  componentElement() => element(ref(componentElementName), (String name) {
+    return new ComponentElement()
+      ..type = name;
+  });
+
+  element(Parser nameParser, Element astNodeFactory(String name)) =>
+    char('<')
+    .seq(nameParser)
     // TODO: parse attributes & property bindings
     .seq(
       string('/>')  // self-closing element, e.g. <div/>
@@ -38,27 +67,72 @@ class LambdaTemplateGrammarDefinition extends GrammarDefinition {
         char('>')
         .seq(ref(content))
         .seq(string('</'))
-        .seq(ref(htmlElementName))
+        .seq(nameParser)
         .seq(char('>'))
       ))
     .map((List tokens) {
-      return new HtmlElement()
-        ..tag = tokens[1];
+      return astNodeFactory(tokens[1]);
     });
 
+  // TODO: differentiate between html and component names:
+  //   - html tag names may contain "-"
+  //   - component names may contain "$" and other Dart identifier characters
   htmlElementName() => pattern('a-z').seq(ref(identifierNameChar).star())
       .flatten();
 
-  identifierNameChar() => pattern('a-zA-Z');
+  componentElementName() => pattern('A-Z').seq(ref(identifierNameChar).star())
+      .flatten();
 
-  // TODO: handle HTML entities
-  plainText() => plainTextCharacter()
-      .plus()
-      .flatten()
+  identifierNameChar() => pattern('a-zA-Z');  // TODO: accept more
+
+  plainText() => new PlainTextParser()
       .map((String textContent) {
-    return new PlainText()..text = textContent;
-  });
+        return new PlainText()..text = textContent;
+      });
 
   plainTextCharacter() =>
       predicate(1, (input) => input != '<', 'illegal plain text character');
+}
+
+// TODO: handle HTML entities
+class PlainTextParser extends Parser {
+  PlainTextParser();
+
+  @override
+  Result parseOn(Context context) {
+    final buf = new StringBuffer();
+    int currPos = context.position;
+
+    Result done() {
+      if (buf.length > 0) {
+        assert(buf.length == currPos - context.position);
+        return context.success(buf.toString(), currPos);
+      } else {
+        return context.failure('not plain text');
+      }
+    }
+
+    while (currPos < context.buffer.length) {
+      final currChar = context.buffer[currPos];
+      if (currChar == '<') {
+        return done();
+      }
+      final nextPos = currPos + 1;
+      if (currChar == '{' && nextPos < context.buffer.length) {
+        final nextChar = context.buffer[nextPos];
+        if (nextChar == '{') {
+          return done();
+        }
+      }
+      buf.write(currChar);
+      currPos = nextPos;
+    }
+    return done();
+  }
+
+  @override
+  Parser copy() => this;  // it's stateless
+
+  @override
+  String toString() => 'PlainTextParser';
 }
