@@ -1,12 +1,36 @@
 library lambda.ast;
 
+import 'dart:collection' show UnmodifiableListView;
+
+class Breadcrumbs<E> {
+  final _list = <E>[];
+
+  void push(E element) {
+    _list.add(element);
+  }
+
+  E pop() {
+    return _list.removeLast();
+  }
+
+  UnmodifiableListView get path => new UnmodifiableListView(_list);
+}
+
 abstract class AstVisitor {
+  /// Path to the parent node of the [AstNode] currently being visited.
+  final context = new Breadcrumbs<AstNodeWithChildren>();
+
   void visitTemplate(Template node) {}
   void visitHtmlElement(HtmlElement node) {}
   void visitComponentElement(ComponentElement node) {}
   void visitPropertyBinding(PropertyBinding node) {}
   void visitTextInterpolation(TextInterpolation node) {}
   void visitPlainText(PlainText node) {}
+
+  /// Called immediately after having visited a node and all its children.
+  /// Useful for context clean-up and outputting closing tags. This method is
+  /// not called for nodes that do not have children.
+  void didVisitNode(AstNode visitedNode) {}
 }
 
 abstract class AstNode {
@@ -27,6 +51,9 @@ abstract class AstNode {
       case TextInterpolation:
         visitor.visitTextInterpolation(this);
         break;
+      case PlainText:
+        visitor.visitPlainText(this);
+        break;
       default:
         throw new StateError('Unknown node type: ${this.runtimeType}');
     }
@@ -38,10 +65,13 @@ abstract class AstNodeWithChildren extends AstNode {
 
   @override
   void accept(AstVisitor visitor) {
+    visitor.context.push(this);
     super.accept(visitor);
     for (AstNode child in children) {
       child.accept(visitor);
     }
+    visitor.didVisitNode(this);
+    visitor.context.pop();
   }
 }
 
@@ -52,8 +82,15 @@ class Template extends AstNodeWithChildren {
   String toString() => children.join();
 }
 
+class Attribute {
+  final String name;
+  final String value;
+  Attribute(this.name, this.value);
+}
+
 abstract class Element extends AstNodeWithChildren {
-  final attributes = <String, String>{};
+  /// Ordered list of attributes
+  final attributes = <Attribute>[];
   final propertyBindings = <PropertyBinding>[];
   final childNodes = <AstNode>[];
 
