@@ -81,9 +81,9 @@ class BuildMethodVisitor extends AstVisitor {
   }
 
   void _emitAttributes(Element elem) {
-    if (elem.attributesAndPropertyBindings.isNotEmpty) {
+    if (elem.attributesAndProps.isNotEmpty) {
       _emit(' , attrs: const {');
-      elem.attributesAndPropertyBindings.forEach((Attribute attr) {
+      elem.attributesAndProps.forEach((Attribute attr) {
         _emit(" '''${attr.name}''': '''${attr.value}'''");
       });
       _emit(' }');

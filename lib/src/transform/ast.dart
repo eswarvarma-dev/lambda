@@ -23,7 +23,7 @@ abstract class AstVisitor {
   void visitTemplate(Template node) {}
   void visitHtmlElement(HtmlElement node) {}
   void visitComponentElement(ComponentElement node) {}
-  void visitPropertyBinding(PropertyBinding node) {}
+  void visitProp(Prop node) {}
   void visitTextInterpolation(TextInterpolation node) {}
   void visitPlainText(PlainText node) {}
   void visitAttribute(Attribute node) {}
@@ -46,8 +46,8 @@ abstract class AstNode {
       case ComponentElement:
         visitor.visitComponentElement(this);
         break;
-      case PropertyBinding:
-        visitor.visitPropertyBinding(this);
+      case Prop:
+        visitor.visitProp(this);
         break;
       case TextInterpolation:
         visitor.visitTextInterpolation(this);
@@ -87,28 +87,22 @@ class Template extends AstNodeWithChildren {
 }
 
 abstract class Element extends AstNodeWithChildren {
-  /// Ordered list of attributes
-  final attributesAndPropertyBindings = <DataNode>[];
+  /// Ordered list of attributes and props
+  final attributesAndProps = <DataNode>[];
   final childNodes = <AstNode>[];
 
   List<AstNode> get children =>
-      new List<AstNode>.from(attributesAndPropertyBindings)
+      new List<AstNode>.from(attributesAndProps)
         ..addAll(childNodes);
 
   String _stringify(String tag) =>
-    '<${tag}${_stringifyAttributes()}${_stringifyProperties()}>'
+    '<${tag}${_stringifyAttributesAndProps()}>'
     '${childNodes.join()}'
     '</${tag}>';
 
-  String _stringifyAttributes() => attributes.isEmpty
+  String _stringifyAttributesAndProps() => attributesAndProps.isEmpty
     ? ''
-    : attributes.map((attr) => ' ${attr}').join();
-
-  String _stringifyProperties() => propertyBindings.isEmpty
-    ? ''
-    : propertyBindings
-        .map((PropertyBinding b) => ' ${b}')
-        .join();
+    : attributesAndProps.map((attrOrProp) => ' ${attrOrProp}').join();
 }
 
 class HtmlElement extends Element {
@@ -138,7 +132,7 @@ class Attribute extends DataNode {
   String toString() => '${name}="${value}"';
 }
 
-class PropertyBinding extends DataNode {
+class Prop extends DataNode {
   String property;
   String expression;
 

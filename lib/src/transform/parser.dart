@@ -95,7 +95,7 @@ class LambdaTemplateGrammarDefinition extends GrammarDefinition {
       .seq(new AttributeValueParser("'"))
       .seq(char("'"));
 
-  propertyBinding() =>
+  prop() =>
     char('[')
     .seq(ref(property))
     .seq(char(']'))
@@ -104,21 +104,21 @@ class LambdaTemplateGrammarDefinition extends GrammarDefinition {
     .seq(ref(space).optional())
     .seq(ref(attributeValue))
     .map((List tokens) {
-      return new PropertyBinding()
+      return new Prop()
         ..property = tokens[1]
         ..expression = tokens[6];
     });
 
-  attributesAndPropertyBindings() =>
+  attributesAndProps() =>
     ref(space)
-    .seq(ref(attribute).or(ref(propertyBinding)))
+    .seq(ref(attribute).or(ref(prop)))
     .pick(1)
     .star();
 
   element(Parser nameParser, Element astNodeFactory(String name)) =>
     char('<')
     .seq(nameParser)
-    .seq(ref(attributesAndPropertyBindings))
+    .seq(ref(attributesAndProps))
     .seq(ref(space).optional())
     // TODO: parse attributes & property bindings
     .seq(
@@ -134,7 +134,7 @@ class LambdaTemplateGrammarDefinition extends GrammarDefinition {
       String name = tokens[1];
       List<DataNode> dataNodes = tokens[2];
       Element elem = astNodeFactory(name);
-      elem.attributesAndPropertyBindings.addAll(dataNodes);
+      elem.attributesAndProps.addAll(dataNodes);
       if (tokens[4] is List) {
         elem.childNodes.addAll(tokens[4][1]);
       }

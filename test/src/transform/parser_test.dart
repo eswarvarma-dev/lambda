@@ -107,7 +107,7 @@ main() {
 
     group('attributes', () {
       parserTest('one', '<div id="greeting" />', (Template tmpl) {
-        var attrs = tmpl.children.single.attributesAndPropertyBindings;
+        var attrs = tmpl.children.single.attributesAndProps;
         expect(attrs, hasLength(1));
         var attr = attrs[0];
         expect(attr.name, 'id');
@@ -115,7 +115,7 @@ main() {
       });
 
       parserTest('many', '<div a="b" c=\'d\' e="f" />', (Template tmpl) {
-        var attrs = tmpl.children.single.attributesAndPropertyBindings;
+        var attrs = tmpl.children.single.attributesAndProps;
         expect(attrs, hasLength(3));
 
         Attribute attr = attrs[0];
@@ -134,18 +134,18 @@ main() {
 
     group('property binding', () {
       parserTest('one', '<div [a]="b" />', (Template tmpl) {
-        var props = tmpl.children.single.attributesAndPropertyBindings;
+        var props = tmpl.children.single.attributesAndProps;
         expect(props, hasLength(1));
-        PropertyBinding prop = props[0];
+        Prop prop = props[0];
         expect(prop.property, 'a');
         expect(prop.expression, 'b');
       });
 
       parserTest('many', '<div [a]="b" [c]=\'d\' />', (Template tmpl) {
-        var props = tmpl.children.single.attributesAndPropertyBindings;
+        var props = tmpl.children.single.attributesAndProps;
         expect(props, hasLength(2));
 
-        PropertyBinding prop = props[0];
+        Prop prop = props[0];
         expect(prop.property, 'a');
         expect(prop.expression, 'b');
 
@@ -157,14 +157,14 @@ main() {
 
     group('attributes and property bindings', () {
       parserTest('mixed', '<div a="b" [c]="d" e="f" [g]="h" />', (Template tmpl) {
-        var props = tmpl.children.single.attributesAndPropertyBindings;
+        var props = tmpl.children.single.attributesAndProps;
         expect(props, hasLength(4));
 
         Attribute attr = props[0];
         expect(attr.name, 'a');
         expect(attr.value, 'b');
 
-        PropertyBinding prop = props[1];
+        Prop prop = props[1];
         expect(prop.property, 'c');
         expect(prop.expression, 'd');
 
