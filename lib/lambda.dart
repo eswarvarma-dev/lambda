@@ -3,7 +3,7 @@ library lambda;
 import 'dart:html';
 export 'dart:html';
 
-void mountView(ViewObject view, {Element onto}) {
+void mountView(ViewNode view, {Element onto}) {
   view.build();
   onto.append(view.hostElement);
 }
@@ -30,13 +30,13 @@ abstract class FragmentModelController<C, T, E> {
   List<E> render(T input);
 }
 
-typedef ViewObject FragmentFactory(ViewObject parentView, dynamic data);
+typedef ViewNode FragmentFactory(ViewNode parentView, dynamic data);
 
 class FragmentController {
   final FragmentModelController _controller;
-  final ViewObject _parentView;
+  final ViewNode _parentView;
   final FragmentFactory _factory;
-  final _fragments = <ViewObject>[];
+  final _fragments = <ViewNode>[];
   Element placeholder;
 
   FragmentController(this._controller, this._parentView, this._factory);
@@ -59,7 +59,7 @@ class FragmentController {
 final _buildStack = new List<Element>(100);
 int _buildStackPointer = -1;
 
-abstract class ViewObject<C> {
+abstract class ViewNode<C> {
   C context;
   Element hostElement;
   List<Node> ownedNodes;
@@ -80,7 +80,7 @@ abstract class ViewObject<C> {
   }
 }
 
-abstract class ViewObjectBuilder<C> extends ViewObject<C> {
+abstract class ViewNodeBuilder<C> extends ViewNode<C> {
 
   void beginHost(String tag) {
     assert(_buildStack.isEmpty);
@@ -117,7 +117,7 @@ abstract class ViewObjectBuilder<C> extends ViewObject<C> {
     return element;
   }
 
-  Element beginChild(ViewObject child) {
+  Element beginChild(ViewNode child) {
     Element childHostElement = child.hostElement;
     Element parent = _buildStack[_buildStackPointer];
     parent.append(childHostElement);

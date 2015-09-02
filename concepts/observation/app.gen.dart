@@ -1,7 +1,7 @@
 part of app.ui;
 
 @View('<div [id]="id" class="button">{{title}}</div>')
-class Button$View extends ViewObjectBuilder<Button> {
+class Button$View extends ViewNodeBuilder<Button> {
   // Bound nodes
   Element _boundNode0;
   Text _boundNode1;
@@ -39,7 +39,7 @@ class Button$View extends ViewObjectBuilder<Button> {
   <Button [title]="_actionName" />
 </form>
 ''')
-class Form$View extends ViewObjectBuilder<Form> {
+class Form$View extends ViewNodeBuilder<Form> {
   Button$View _child0;
 
   String _property0_0;
@@ -63,7 +63,7 @@ class Form$View extends ViewObjectBuilder<Form> {
   }
 }
 
-class Menu$View extends ViewObjectBuilder<Menu> {
+class Menu$View extends ViewNodeBuilder<Menu> {
   FragmentController _fragmentController0;
 
   @override
@@ -85,7 +85,7 @@ class Menu$View extends ViewObjectBuilder<Menu> {
   }
 }
 
-class Menu$Fragment0 extends ViewObjectBuilder<Menu> {
+class Menu$Fragment0 extends ViewNodeBuilder<Menu> {
 
   static Menu$Fragment0 fragmentFactory(Menu$View parentView, String item) =>
       new Menu$Fragment0()

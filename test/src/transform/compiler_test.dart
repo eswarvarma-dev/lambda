@@ -14,7 +14,7 @@ main() {
     test('should compose a view object', () {
       final actual = new TemplateCompiler('Foo', '<div/>').compile();
       expect(fmt(actual), fmt('''
-        class Foo\$View extends ViewObjectBuilder<Button> {
+        class Foo\$View extends ViewNodeBuilder<Button> {
           @override
           build() {
             final context = new Foo();

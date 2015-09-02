@@ -8,7 +8,7 @@ import 'package:lambda/lambda.dart';
 @View('<div id="greeting">hello</div>')
 class Button {
   // This is implemented by transformer
-  static ViewObject viewFactory() => null;
+  static ViewNode viewFactory() => null;
 }
 
 main() {
