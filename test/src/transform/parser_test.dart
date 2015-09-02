@@ -104,6 +104,49 @@ main() {
         expect((elem.children[2] as ComponentElement).type, 'D');
       });
     });
+
+    group('attributes', () {
+      parserTest('one attribute', '<div id="greeting" />', (Template tmpl) {
+        var attrs = tmpl.children.single.attributes;
+        expect(attrs, hasLength(1));
+        var attr = attrs[0];
+        expect(attr.name, 'id');
+        expect(attr.value, 'greeting');
+      });
+
+      parserTest('many attributes', '<div a="b" c=\'d\' e="f" />', (Template tmpl) {
+        var attrs = tmpl.children.single.attributes;
+        expect(attrs, hasLength(3));
+
+        var attr = attrs[0];
+        expect(attr.name, 'a');
+        expect(attr.value, 'b');
+
+        attr = attrs[1];
+        expect(attr.name, 'c');
+        expect(attr.value, 'd');
+
+        attr = attrs[2];
+        expect(attr.name, 'e');
+        expect(attr.value, 'f');
+      });
+    });
+  });
+
+  group('highlightLocation_', () {
+    test('should highlight location', () {
+      expect(highlightLocation_(
+'''
+line1
+line2
+line3''', 2, 4),
+'''
+line1
+line2
+   ^
+line3
+''');
+    });
   });
 }
 

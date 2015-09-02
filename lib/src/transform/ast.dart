@@ -26,6 +26,7 @@ abstract class AstVisitor {
   void visitPropertyBinding(PropertyBinding node) {}
   void visitTextInterpolation(TextInterpolation node) {}
   void visitPlainText(PlainText node) {}
+  void visitAttribute(Attribute node) {}
 
   /// Called immediately after having visited a node and all its children.
   /// Useful for context clean-up and outputting closing tags. This method is
@@ -53,6 +54,9 @@ abstract class AstNode {
         break;
       case PlainText:
         visitor.visitPlainText(this);
+        break;
+      case Attribute:
+        visitor.visitAttribute(this);
         break;
       default:
         throw new StateError('Unknown node type: ${this.runtimeType}');
@@ -82,10 +86,14 @@ class Template extends AstNodeWithChildren {
   String toString() => children.join();
 }
 
-class Attribute {
+class Attribute extends AstNode {
   final String name;
   final String value;
+
   Attribute(this.name, this.value);
+
+  @override
+  String toString() => '${name}="${value}"';
 }
 
 abstract class Element extends AstNodeWithChildren {
@@ -95,7 +103,9 @@ abstract class Element extends AstNodeWithChildren {
   final childNodes = <AstNode>[];
 
   List<AstNode> get children =>
-      new List<AstNode>.from(propertyBindings)..addAll(childNodes);
+      new List<AstNode>.from(propertyBindings)
+        ..addAll(attributes)
+        ..addAll(childNodes);
 
   String _stringify(String tag) =>
     '<${tag}${_stringifyAttributes()}${_stringifyProperties()}>'
@@ -104,7 +114,7 @@ abstract class Element extends AstNodeWithChildren {
 
   String _stringifyAttributes() => attributes.isEmpty
     ? ''
-    : attributes.keys.map((k) => ' ${k}="${attributes[k]}"').join();
+    : attributes.map((attr) => ' ${attr}').join();
 
   String _stringifyProperties() => propertyBindings.isEmpty
     ? ''

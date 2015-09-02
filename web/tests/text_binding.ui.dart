@@ -8,15 +8,15 @@ import 'package:lambda/lambda.dart';
 @View('<div>{{title}}</div>')
 class Button {
   // This is implemented by transformer
-  static LambdaView viewFactory() => null;
+  static ViewObject viewFactory() => null;
 
   String title;
-  Button(this.title);
+
+  Button();
 }
 
 main() {
-  initUix();
-  final rootCmp = Button.viewFactory()
-    ..context = new Button('Save');
-  injectComponent(rootCmp, document.querySelector('#app-host'));
+  final hostElement = document.querySelector('#app-host');
+  mountView(Button.viewFactory()
+    ..context.title = 'Save', onto: hostElement);
 }
