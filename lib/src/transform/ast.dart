@@ -86,25 +86,13 @@ class Template extends AstNodeWithChildren {
   String toString() => children.join();
 }
 
-class Attribute extends AstNode {
-  final String name;
-  final String value;
-
-  Attribute(this.name, this.value);
-
-  @override
-  String toString() => '${name}="${value}"';
-}
-
 abstract class Element extends AstNodeWithChildren {
   /// Ordered list of attributes
-  final attributes = <Attribute>[];
-  final propertyBindings = <PropertyBinding>[];
+  final attributesAndPropertyBindings = <DataNode>[];
   final childNodes = <AstNode>[];
 
   List<AstNode> get children =>
-      new List<AstNode>.from(propertyBindings)
-        ..addAll(attributes)
+      new List<AstNode>.from(attributesAndPropertyBindings)
         ..addAll(childNodes);
 
   String _stringify(String tag) =>
@@ -137,12 +125,25 @@ class ComponentElement extends Element {
   String toString() => super._stringify(type);
 }
 
-class PropertyBinding extends AstNode {
-  String propertyName;
+/// Superclass for all types of nodes that deal with passing data.
+abstract class DataNode extends AstNode {}
+
+class Attribute extends DataNode {
+  final String name;
+  final String value;
+
+  Attribute(this.name, this.value);
+
+  @override
+  String toString() => '${name}="${value}"';
+}
+
+class PropertyBinding extends DataNode {
+  String property;
   String expression;
 
   @override
-  String toString() => '[${propertyName}]="${expression}"';
+  String toString() => '[${property}]="${expression}"';
 }
 
 class TextInterpolation extends AstNode {

@@ -94,12 +94,31 @@ class LambdaTemplateGrammarDefinition extends GrammarDefinition {
   attributeValueSingle() => char("'")
       .seq(new AttributeValueParser("'"))
       .seq(char("'"));
-  attributes() => ref(space).seq(ref(attribute)).pick(1).star();
+
+  propertyBinding() =>
+    char('[')
+    .seq(ref(property))
+    .seq(char(']'))
+    .seq(ref(space).optional())
+    .seq(char('='))
+    .seq(ref(space).optional())
+    .seq(ref(attributeValue))
+    .map((List tokens) {
+      return new PropertyBinding()
+        ..property = tokens[1]
+        ..expression = tokens[6];
+    });
+
+  attributesAndPropertyBindings() =>
+    ref(space)
+    .seq(ref(attribute).or(ref(propertyBinding)))
+    .pick(1)
+    .star();
 
   element(Parser nameParser, Element astNodeFactory(String name)) =>
     char('<')
     .seq(nameParser)
-    .seq(ref(attributes))
+    .seq(ref(attributesAndPropertyBindings))
     .seq(ref(space).optional())
     // TODO: parse attributes & property bindings
     .seq(
@@ -113,9 +132,9 @@ class LambdaTemplateGrammarDefinition extends GrammarDefinition {
       ))
     .map((List tokens) {
       String name = tokens[1];
-      List<Attribute> attrs = tokens[2];
+      List<DataNode> dataNodes = tokens[2];
       Element elem = astNodeFactory(name);
-      elem.attributes.addAll(attrs);
+      elem.attributesAndPropertyBindings.addAll(dataNodes);
       if (tokens[4] is List) {
         elem.childNodes.addAll(tokens[4][1]);
       }
@@ -129,6 +148,9 @@ class LambdaTemplateGrammarDefinition extends GrammarDefinition {
       .flatten();
 
   attributeName() => pattern('a-z').seq(ref(identifierNameChar).star())
+      .flatten();
+
+  property() => pattern('a-z').seq(ref(identifierNameChar).star())
       .flatten();
 
   componentElementName() => pattern('A-Z').seq(ref(identifierNameChar).star())
