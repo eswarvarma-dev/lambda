@@ -1,3 +1,4 @@
+@TestOn('vm')
 library lambda.compiler.test;
 
 import 'package:test/test.dart';

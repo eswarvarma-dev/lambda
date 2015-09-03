@@ -19,9 +19,14 @@ dev_dependencies:
   xml: any
 transformers:
 - lambda:
-    $include: web/tests/*
+    $include:
+      - web/tests/*
+      - test
+- test/pub_serve:
+    $include: test/**_test{.*,}.dart
 - $dart2js:
-#    $exclude: web
+    $exclude:
+      - web
     minify: true
     commandLineOptions:
     - --dump-info

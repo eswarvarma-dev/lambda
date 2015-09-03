@@ -17,9 +17,13 @@ class LambdaTransformer extends Transformer {
   LambdaTransformer.asPlugin();
 
   static const _EXTENSION = '.ui.dart';
+  static const _TEST_EXTENSION = '.ui_test.dart';
 
   @override
-  bool isPrimary(AssetId id) => id.path.endsWith(_EXTENSION);
+  bool isPrimary(AssetId id) {
+    return id.path.endsWith(_EXTENSION) ||
+        id.path.endsWith(_TEST_EXTENSION);
+  }
 
   @override
   Future apply(Transform transform) async {

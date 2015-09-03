@@ -1,3 +1,4 @@
+@TestOn('vm')
 library lambda.parser.test;
 
 import 'package:test/test.dart';

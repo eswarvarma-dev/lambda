@@ -32,7 +32,7 @@ class TemplateCompiler {
 
   void _emitViewHeader() {
     _emit(' class ${_controllerClassName}\$View'
-        ' extends ViewNodeBuilder<Button> {');
+        ' extends ViewNodeBuilder<${_controllerClassName}> {');
   }
 
   void _emitViewFooter() {
