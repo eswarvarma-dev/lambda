@@ -6,17 +6,15 @@ authors:
 homepage: https://github.com/yjbanov/lambda
 sdk: ">=1.10.0"
 dependencies:
-  analyzer: ">=0.25.0 <0.26.0"
-  args: any
-  barback: ">=0.15.2 <0.16.0"
-  browser: ">=0.10.0+2 <0.11.0"
-  dart_style: any
-  uix:
-    git: https://github.com/localvoid/uix
+  analyzer: ">=0.26.1 <1.0.0"
+  args: ">=0.13.2 <1.0.0"
+  barback: ">=0.15.2 <1.0.0"
+  browser: ">=0.10.0+2 <1.0.0"
+  dart_style: ">=0.2.0"
 dev_dependencies:
-  test: any
-  path: any
-  xml: any
+  test: ">=0.12.4 <1.0.0"
+  path: ">=1.0.0 <2.0.0"
+  petitparser: ">=1.4.3 <2.0.0"
 transformers:
 - lambda:
     $include:
