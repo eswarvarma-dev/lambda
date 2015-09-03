@@ -109,9 +109,23 @@ class LambdaTemplateGrammarDefinition extends GrammarDefinition {
         ..expression = tokens[6];
     });
 
+  event() =>
+    char('(')
+    .seq(ref(eventType))
+    .seq(char(')'))
+    .seq(ref(space).optional())
+    .seq(char('='))
+    .seq(ref(space).optional())
+    .seq(ref(attributeValue))
+    .map((List tokens) {
+      return new Event()
+        ..type = tokens[1]
+        ..statement = tokens[6];
+    });
+
   attributesAndProps() =>
     ref(space)
-    .seq(ref(attribute).or(ref(prop)))
+    .seq(ref(attribute).or(ref(prop)).or(ref(event)))
     .pick(1)
     .star();
 
@@ -151,6 +165,9 @@ class LambdaTemplateGrammarDefinition extends GrammarDefinition {
       .flatten();
 
   property() => pattern('a-z').seq(ref(identifierNameChar).star())
+      .flatten();
+
+  eventType() => pattern('a-z').seq(ref(identifierNameChar).star())
       .flatten();
 
   componentElementName() => pattern('A-Z').seq(ref(identifierNameChar).star())

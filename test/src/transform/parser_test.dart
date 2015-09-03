@@ -155,8 +155,16 @@ main() {
       });
     });
 
-    group('attributes and property bindings', () {
-      parserTest('mixed', '<div a="b" [c]="d" e="f" [g]="h" />', (Template tmpl) {
+    group('events', () {
+      parserTest('one', '<div (a)="b" />', (Template tmpl) {
+        Event event = tmpl.children.single.attributesAndProps.single;
+        expect(event.type, 'a');
+        expect(event.statement, 'b');
+      });
+    });
+
+    group('attributes, props and events', () {
+      parserTest('mixed', '<div a="b" [c]="d" (e)="f" [g]="h" />', (Template tmpl) {
         var props = tmpl.children.single.attributesAndProps;
         expect(props, hasLength(4));
 
@@ -168,9 +176,9 @@ main() {
         expect(prop.property, 'c');
         expect(prop.expression, 'd');
 
-        attr = props[2];
-        expect(attr.name, 'e');
-        expect(attr.value, 'f');
+        Event event = props[2];
+        expect(event.type, 'e');
+        expect(event.statement, 'f');
 
         prop = props[3];
         expect(prop.property, 'g');

@@ -140,6 +140,14 @@ class Prop extends DataNode {
   String toString() => '[${property}]="${expression}"';
 }
 
+class Event extends DataNode {
+  String type;
+  String statement;
+
+  @override
+  String toString() => '(${type})="${statement}"';
+}
+
 class TextInterpolation extends AstNode {
   String expression;
 
