@@ -18,11 +18,15 @@ main() {
         class Foo\$View extends ViewNodeBuilder<Foo> {
           @override
           build() {
-            final context = new Foo();
+            this.context = new Foo();
             beginHost(\'Foo\');
             beginElement(\'div\');
             endElement();
             endHost();
+          }
+          @override
+          void update() {
+            var _tmp;
           }
         }
       '''));
@@ -61,7 +65,7 @@ main() {
       '<div>{{greeting}}</div>',
       """
       beginElement('div' );
-      addTextInterpolation();
+      _textInterpolationNode0 = addTextInterpolation();
       endElement();
       """
     );
@@ -71,9 +75,9 @@ main() {
       '<div>{{greeting}}, {{person}}</div>',
       """
       beginElement('div' );
-      addTextInterpolation();
+      _textInterpolationNode0 = addTextInterpolation();
       addText(''', ''' );
-      addTextInterpolation();
+      _textInterpolationNode1 = addTextInterpolation();
       endElement();
       """
     );
@@ -84,11 +88,11 @@ main() {
       """
       beginElement('div' );
       beginElement('span' );
-      addTextInterpolation();
+      _textInterpolationNode0 = addTextInterpolation();
       addText(''',''' );
       endElement();
       beginElement('span' );
-      addTextInterpolation();
+      _textInterpolationNode1 = addTextInterpolation();
       endElement();
       endElement();
       """
@@ -98,7 +102,7 @@ main() {
       'child component',
       '<Child/>',
       """
-      beginChild(Child.viewFactory());
+      _child0 = beginChild(Child.viewFactory());
       endElement();
       """
     );
@@ -108,7 +112,7 @@ main() {
       '<div><Child/></div>',
       """
       beginElement('div' );
-      beginChild(Child.viewFactory());
+      _child0 = beginChild(Child.viewFactory());
       endElement();
       endElement();
       """
@@ -119,11 +123,13 @@ main() {
 void compileTest(String description, String source, String expectation) {
   test(description, () {
     final buildVisitor = new BuildMethodVisitor('Foo');
-    parse(source).accept(buildVisitor);
+    parse(source)
+      ..accept(new Binder())
+      ..accept(buildVisitor);
     final fmtExpected = fmt('''
     @override
     build() {
-      final context = new Foo();
+      this.context = new Foo();
       beginHost('Foo');
       ${expectation.trim()}
       endHost();

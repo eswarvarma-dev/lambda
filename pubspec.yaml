@@ -20,8 +20,6 @@ transformers:
     $include:
       - web/tests/*
       - test
-- test/pub_serve:
-    $include: test/**_test{.*,}.dart
 - $dart2js:
     $exclude:
       - web

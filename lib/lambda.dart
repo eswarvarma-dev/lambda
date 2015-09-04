@@ -3,11 +3,6 @@ library lambda;
 import 'dart:html';
 export 'dart:html';
 
-void mountView(ViewNode view, {Element onto}) {
-  view.build();
-  onto.append(view.hostElement);
-}
-
 /// A noop annotation that causes Dart analyzer to shut up about "unused"
 /// imports. Because Lambda template language can refer to symbols, it requires
 /// that those symbols are imported.

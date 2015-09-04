@@ -90,6 +90,10 @@ abstract class Element extends AstNodeWithChildren {
   /// Ordered list of attributes and props
   final attributesAndProps = <DataNode>[];
   final childNodes = <AstNode>[];
+  /// Field on the generated [ViewNode] that references an instance of this
+  /// element, if the element participates in logic after the view node is
+  /// built, such as property binding.
+  String field;
 
   List<AstNode> get children =>
       new List<AstNode>.from(attributesAndProps)
@@ -107,6 +111,7 @@ abstract class Element extends AstNodeWithChildren {
 
 class HtmlElement extends Element {
   String tag;
+  bool isBound = false;
 
   @override
   String toString() => super._stringify(tag);
@@ -150,9 +155,13 @@ class Event extends DataNode {
 
 class TextInterpolation extends AstNode {
   String expression;
+  /// Field that references to the text node.
+  String nodeField;
+  /// Field that references the last seen string value.
+  String valueField;
 
   @override
-  String toString() => '{{expression}}';
+  String toString() => '{{$expression}}';
 }
 
 class PlainText extends AstNode {
