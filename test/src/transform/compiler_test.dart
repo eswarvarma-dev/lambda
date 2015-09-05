@@ -65,7 +65,7 @@ main() {
       '<div>{{greeting}}</div>',
       """
       beginElement('div' );
-      _textInterpolationNode0 = addTextInterpolation();
+      _textInterpolationNode1 = addTextInterpolation();
       endElement();
       """
     );
@@ -75,9 +75,9 @@ main() {
       '<div>{{greeting}}, {{person}}</div>',
       """
       beginElement('div' );
-      _textInterpolationNode0 = addTextInterpolation();
-      addText(''', ''' );
       _textInterpolationNode1 = addTextInterpolation();
+      addText(''', ''' );
+      _textInterpolationNode2 = addTextInterpolation();
       endElement();
       """
     );
@@ -88,11 +88,11 @@ main() {
       """
       beginElement('div' );
       beginElement('span' );
-      _textInterpolationNode0 = addTextInterpolation();
+      _textInterpolationNode2 = addTextInterpolation();
       addText(''',''' );
       endElement();
       beginElement('span' );
-      _textInterpolationNode1 = addTextInterpolation();
+      _textInterpolationNode4 = addTextInterpolation();
       endElement();
       endElement();
       """
@@ -112,7 +112,7 @@ main() {
       '<div><Child/></div>',
       """
       beginElement('div' );
-      _child0 = beginChild(Child.viewFactory());
+      _child1 = beginChild(Child.viewFactory());
       endElement();
       endElement();
       """

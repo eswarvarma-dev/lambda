@@ -52,13 +52,9 @@ class Binder extends AstVisitor {
 
   @override
   void visitHtmlElement(HtmlElement elem) {
-    if(elem.attributesAndProps.any((DataNode node) => node is Prop)) {
-      // This element has property bindings on it and therefore needs to be
-      // stored in a field
-      elem
-        ..isBound = true
-        ..nodeField = '_boundElement${_idx++}';
-    }
+    elem
+      ..isBound = elem.attributesAndProps.any((DataNode node) => node is Prop)
+      ..nodeField = '_element${_idx++}';
   }
 
   @override
@@ -87,6 +83,7 @@ class FieldGeneratorVisitor extends AstVisitor {
 
   @override
   void visitHtmlElement(HtmlElement elem) {
+    // Create fields only for bound nodes
     if (elem.isBound) {
       _emit(' Element ${elem.nodeField};');
     }
@@ -133,12 +130,23 @@ class BuildMethodVisitor extends AstVisitor {
   @override
   void visitHtmlElement(HtmlElement elem) {
     final tag = elem.tag;
+    bool hasEvents = elem.attributesAndProps.any((p) => p is Event);
     if (elem.isBound) {
       _emit(' ${elem.nodeField} = ');
+    }
+    // If we're listening to events on this element, store the element reference
+    // in a local variable in order to create subscriptions.
+    else if (hasEvents) {
+      _emit(' Element ${elem.nodeField} = ');
     }
     _emit(" beginElement('${tag}'");
     _emitAttributes(elem);
     _emit(' );');
+    if (hasEvents) {
+      elem.attributesAndProps.where((n) => n is Event).forEach((Event e) {
+        _emitSubscription(elem.nodeField, e);
+      });
+    }
   }
 
   @override
@@ -146,6 +154,19 @@ class BuildMethodVisitor extends AstVisitor {
     final tag = elem.type;
     _emit(' ${elem.nodeField} = beginChild(${tag}.viewFactory()');
     _emitAttributes(elem);
+    _emit(' );');
+    bool hasEvents = elem.attributesAndProps.any((p) => p is Event);
+    if (hasEvents) {
+      elem.attributesAndProps.where((n) => n is Event).forEach((Event e) {
+        _emitSubscription(elem.nodeField, e);
+      });
+    }
+  }
+
+  _emitSubscription(String nodeVariable, Event event) {
+    _emit(' subscribe(');
+    _emit('   ${nodeVariable}.on[\'${event.type}\'],');
+    _emit('   context.${event.statement}');
     _emit(' );');
   }
 
@@ -160,13 +181,12 @@ class BuildMethodVisitor extends AstVisitor {
   }
 
   void _emitAttributes(Element elem) {
-    if (elem.attributesAndProps.isNotEmpty) {
+    var attrs = elem.attributesAndProps.where((n) => n is Attribute);
+    if (attrs.isNotEmpty) {
       _emit(' , attrs: const {');
-      elem.attributesAndProps
-        .where((n) => n is Attribute)
-        .forEach((Attribute attr) {
-          _emit(" '''${attr.name}''': '''${attr.value}'''");
-        });
+      attrs.forEach((Attribute attr) {
+        _emit(" '''${attr.name}''': '''${attr.value}'''");
+      });
       _emit(' }');
     }
   }

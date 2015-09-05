@@ -27,6 +27,7 @@ abstract class AstVisitor {
   void visitTextInterpolation(TextInterpolation node) {}
   void visitPlainText(PlainText node) {}
   void visitAttribute(Attribute node) {}
+  void visitEvent(Event node) {}
 
   /// Called immediately after having visited a node and all its children.
   /// Useful for context clean-up and outputting closing tags. This method is
@@ -57,6 +58,9 @@ abstract class AstNode {
         break;
       case Attribute:
         visitor.visitAttribute(this);
+        break;
+      case Event:
+        visitor.visitEvent(this);
         break;
       default:
         throw new StateError('Unknown node type: ${this.runtimeType}');
@@ -149,6 +153,7 @@ class Prop extends DataNode {
 class Event extends DataNode {
   String type;
   String statement;
+  String subscriptionField;
 
   @override
   String toString() => '(${type})="${statement}"';

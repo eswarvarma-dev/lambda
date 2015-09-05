@@ -2,6 +2,7 @@ library lambda;
 
 import 'dart:html';
 export 'dart:html';
+import 'dart:async';
 
 /// A noop annotation that causes Dart analyzer to shut up about "unused"
 /// imports. Because Lambda template language can refer to symbols, it requires
@@ -75,7 +76,25 @@ abstract class ViewNode<C> {
   }
 }
 
+/// A utility for building [ViewNode]s.
 abstract class ViewNodeBuilder<C> extends ViewNode<C> {
+
+  List<StreamSubscription> _subscriptions;
+
+  void subscribe(Stream stream, Function callback) {
+    trackSubscription(stream.listen(callback));
+  }
+  void trackSubscription(StreamSubscription sub) {
+    if (_subscriptions == null) _subscriptions = <StreamSubscription>[];
+    _subscriptions.add(sub);
+  }
+
+  void cleanupSubscriptions() {
+    for (int i = 0; i < _subscriptions.length; i++) {
+      _subscriptions[i].cancel();
+    }
+    _subscriptions.clear();
+  }
 
   void beginHost(String tag) {
     assert(_buildStack.isEmpty);
