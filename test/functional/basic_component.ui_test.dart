@@ -19,6 +19,13 @@ class WithTextInterpolation {
   String greeting = 'hello';
 }
 
+@View('<div [id]="id" />')
+class WithProp {
+  static ViewNode viewFactory() => null;
+
+  String id = 'id1';
+}
+
 main() {
   group('primitive component', () {
     ViewNode view;
@@ -58,6 +65,27 @@ main() {
       view.update();
       expect(view.hostElement.outerHtml,
           '<withtextinterpolation><div>hello</div></withtextinterpolation>');
+    });
+  });
+
+  group('component with prop', () {
+    ViewNode view;
+
+    setUp(() {
+      view = WithProp.viewFactory();
+    });
+
+    test('should build with no data', () {
+      view.build();
+      expect(view.hostElement.outerHtml,
+          '<withprop><div></div></withprop>');
+    });
+
+    test('should update with some data', () {
+      view.build();
+      view.update();
+      expect(view.hostElement.outerHtml,
+          '<withprop><div id="id1"></div></withprop>');
     });
   });
 }
