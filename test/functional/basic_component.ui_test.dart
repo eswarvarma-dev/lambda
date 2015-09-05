@@ -69,7 +69,7 @@ main() {
   });
 
   group('component with prop', () {
-    ViewNode view;
+    ViewNode<WithProp> view;
 
     setUp(() {
       view = WithProp.viewFactory();
@@ -86,6 +86,14 @@ main() {
       view.update();
       expect(view.hostElement.outerHtml,
           '<withprop><div id="id1"></div></withprop>');
+
+      WithProp ctrl = view.context;
+      ctrl.id = 'id2';
+      expect(view.hostElement.outerHtml,
+          '<withprop><div id="id1"></div></withprop>');
+      view.update();
+      expect(view.hostElement.outerHtml,
+          '<withprop><div id="id2"></div></withprop>');
     });
   });
 }

@@ -57,13 +57,13 @@ class Binder extends AstVisitor {
       // stored in a field
       elem
         ..isBound = true
-        ..field = '_boundElement${_idx++}';
+        ..nodeField = '_boundElement${_idx++}';
     }
   }
 
   @override
   void visitComponentElement(ComponentElement elem) {
-    elem.field = '_child${_idx++}';
+    elem.nodeField = '_child${_idx++}';
   }
 
   @override
@@ -71,6 +71,11 @@ class Binder extends AstVisitor {
     txti.nodeField = '_textInterpolationNode${_idx}';
     txti.valueField = '_textInterpolationValue${_idx}';
     _idx++;
+  }
+
+  @override
+  void visitProp(Prop p) {
+    p.valueField = '_prop${_idx++}';
   }
 }
 
@@ -83,19 +88,24 @@ class FieldGeneratorVisitor extends AstVisitor {
   @override
   void visitHtmlElement(HtmlElement elem) {
     if (elem.isBound) {
-      _emit(' Element ${elem.field};');
+      _emit(' Element ${elem.nodeField};');
     }
   }
 
   @override
   void visitComponentElement(ComponentElement elem) {
-    _emit(' ${elem.type} ${elem.field};');
+    _emit(' ${elem.type} ${elem.nodeField};');
   }
 
   @override
   void visitTextInterpolation(TextInterpolation txti) {
-    _emit(" Text ${txti.nodeField};");
-    _emit(" String ${txti.valueField};");
+    _emit(' Text ${txti.nodeField};');
+    _emit(' String ${txti.valueField};');
+  }
+
+  @override
+  void visitProp(Prop p) {
+    _emit(' var ${p.valueField};');
   }
 
   void _emit(Object o) {
@@ -124,7 +134,7 @@ class BuildMethodVisitor extends AstVisitor {
   void visitHtmlElement(HtmlElement elem) {
     final tag = elem.tag;
     if (elem.isBound) {
-      _emit(' ${elem.field} = ');
+      _emit(' ${elem.nodeField} = ');
     }
     _emit(" beginElement('${tag}'");
     _emitAttributes(elem);
@@ -134,7 +144,7 @@ class BuildMethodVisitor extends AstVisitor {
   @override
   void visitComponentElement(ComponentElement elem) {
     final tag = elem.type;
-    _emit(' ${elem.field} = beginChild(${tag}.viewFactory()');
+    _emit(' ${elem.nodeField} = beginChild(${tag}.viewFactory()');
     _emitAttributes(elem);
     _emit(' );');
   }
@@ -216,8 +226,8 @@ class UpdateMethodVisitor extends AstVisitor {
       .where((n) => n is Prop)
       .forEach((Prop p) {
         _emit(' _tmp = context.${p.expression};');
-        _emit(' if (!identical(_tmp, ${elem.field})) {');
-        _emit('   ${elem.field}.${p.property} = ${elem.field} = _tmp;');
+        _emit(' if (!identical(_tmp, ${elem.nodeField})) {');
+        _emit('   ${elem.nodeField}.${p.property} = ${p.valueField} = _tmp;');
         _emit(' }');
       });
   }

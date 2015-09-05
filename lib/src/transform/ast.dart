@@ -93,7 +93,7 @@ abstract class Element extends AstNodeWithChildren {
   /// Field on the generated [ViewNode] that references an instance of this
   /// element, if the element participates in logic after the view node is
   /// built, such as property binding.
-  String field;
+  String nodeField;
 
   List<AstNode> get children =>
       new List<AstNode>.from(attributesAndProps)
@@ -140,6 +140,7 @@ class Attribute extends DataNode {
 class Prop extends DataNode {
   String property;
   String expression;
+  String valueField;
 
   @override
   String toString() => '[${property}]="${expression}"';
