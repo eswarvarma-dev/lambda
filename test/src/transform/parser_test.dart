@@ -189,13 +189,13 @@ main() {
 
     group('fragment controller', () {
       parserTest('simple', '<% If (condition) %><div/><% /If %>', (Template tmpl) {
-        Fragment ifFragment = tmpl.children.single;
-        expect(ifFragment, isNotNull);
-        expect(ifFragment.type, 'If');
-        expect(ifFragment.inExpressions, ['condition']);
-        expect(ifFragment.outVars, isEmpty);
-        expect(ifFragment.childNodes, hasLength(1));
-        expect(ifFragment.children, hasLength(1));
+        Fragment frag = tmpl.children.single;
+        expect(frag, isNotNull);
+        expect(frag.type, 'If');
+        expect(frag.inExpressions, ['condition']);
+        expect(frag.outVars, isEmpty);
+        expect(frag.childNodes, hasLength(1));
+        expect(frag.children, hasLength(1));
       });
 
       test('should validate closing tags', () {
@@ -206,6 +206,15 @@ main() {
           expect(e, 'Closing fragment <% /Fi %> does not match'
               ' opening fragment <% If %>.');
         }
+      });
+
+      parserTest(
+          'output variable',
+          '<% For (items -> item) %><% /For %>',
+          (Template tmpl) {
+        Fragment frag = tmpl.children.single;
+        expect(frag.inExpressions, ['items']);
+        expect(frag.outVars, ['item']);
       });
     });
   });

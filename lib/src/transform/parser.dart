@@ -156,27 +156,36 @@ class LambdaTemplateGrammarDefinition extends GrammarDefinition {
       return elem;
     });
 
+  fragmentOutputVariables() =>
+    ref(space).optional()
+    .seq(string('->'))
+    .seq(ref(space).optional())
+    .seq(ref(expression))
+    .map((List tokens) {
+      return [tokens[3]];
+    });
+
   fragment() =>
-    string('<%')                 // 0
-    .seq(ref(space).optional())  // 1
-    .seq(ref(dartClassName))     // 2
-    .seq(ref(space).optional())  // 3
-    .seq(char('('))              // 4
-    .seq(ref(expression))        // 5
-    // TODO: parse out vars: -> a, b, c
-    .seq(char(')'))              // 6
-    .seq(ref(space).optional())  // 7
-    .seq(string('%>'))           // 8
-    .seq(ref(content))           // 9
-    .seq(string('<%'))           // 10
-    .seq(ref(space).optional())  // 11
-    .seq(char('/'))              // 12
-    .seq(ref(dartClassName))   // 13
-    .seq(ref(space).optional())  // 14
-    .seq(string('%>'))           // 15
+    string('<%')
+    .seq(ref(space).optional())
+    .seq(ref(dartClassName))
+    .seq(ref(space).optional())
+    .seq(char('('))
+    .seq(ref(expression))
+    .seq(ref(fragmentOutputVariables).optional())
+    .seq(char(')'))
+    .seq(ref(space).optional())
+    .seq(string('%>'))
+    .seq(ref(content))
+    .seq(string('<%'))
+    .seq(ref(space).optional())
+    .seq(char('/'))
+    .seq(ref(dartClassName))
+    .seq(ref(space).optional())
+    .seq(string('%>'))
     .map((List tokens) {
       String openType = tokens[2];
-      String closeType = tokens[13];
+      String closeType = tokens[14];
       if (openType != closeType) {
         throw 'Closing fragment <% /${closeType} %> does not match '
           'opening fragment <% ${openType} %>.';
@@ -184,7 +193,10 @@ class LambdaTemplateGrammarDefinition extends GrammarDefinition {
       final fragment = new Fragment()
         ..type = openType
         ..inExpressions.add(tokens[5])
-        ..childNodes.addAll(tokens[9]);
+        ..childNodes.addAll(tokens[10]);
+      if (tokens[6] is List) {
+        fragment.outVars.addAll(tokens[6]);
+      }
       return fragment;
     });
 
