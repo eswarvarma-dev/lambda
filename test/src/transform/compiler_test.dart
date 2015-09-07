@@ -117,6 +117,14 @@ main() {
       endElement();
       """
     );
+
+    compileTest(
+      'fragment',
+      '<% For (items -> item) %><div/><% /For %>',
+      """
+      addFragmentPlaceholder(_fragment0 = new For());
+      """
+    );
   });
 }
 

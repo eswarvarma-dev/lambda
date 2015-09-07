@@ -56,6 +56,7 @@ class LambdaTemplateGrammarDefinition extends GrammarDefinition {
     | ref(plainText)
   ).star();
 
+  /// Parses text interpolation of the form `{{expression}}`.
   textInterpolation() =>
     string('{{')
     .seq(pattern('a-z.A-Z').plus().flatten())  // TODO: accept more
@@ -64,6 +65,7 @@ class LambdaTemplateGrammarDefinition extends GrammarDefinition {
         ..expression = tokens[1];
     });
 
+  /// Parses a template expression, currently only of the form `foo.bar.baz`.
   expression() =>
     (pattern('a-zA-Z').plus())
     .optional(char('.').seq((pattern('a-zA-Z').plus())))

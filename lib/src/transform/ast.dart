@@ -20,14 +20,17 @@ abstract class AstVisitor {
   /// Path to the parent node of the [AstNode] currently being visited.
   final context = new Breadcrumbs<AstNodeWithChildren>();
 
-  void visitTemplate(Template node) {}
-  void visitHtmlElement(HtmlElement node) {}
-  void visitComponentElement(ComponentElement node) {}
-  void visitProp(Prop node) {}
-  void visitTextInterpolation(TextInterpolation node) {}
-  void visitPlainText(PlainText node) {}
-  void visitAttribute(Attribute node) {}
-  void visitEvent(Event node) {}
+  /// Returns whether the node was consumed along with its children. If `true`,
+  /// the node's children will not be visited, the recursion stop at this node.
+  bool visitTemplate(Template node) { return false; }
+  bool visitHtmlElement(HtmlElement node) { return false; }
+  bool visitComponentElement(ComponentElement node) { return false; }
+  bool visitProp(Prop node) { return false; }
+  bool visitTextInterpolation(TextInterpolation node) { return false; }
+  bool visitPlainText(PlainText node) { return false; }
+  bool visitAttribute(Attribute node) { return false; }
+  bool visitEvent(Event node) { return false; }
+  bool visitFragment(Fragment node) { return false; }
 
   /// Called immediately after having visited a node and all its children.
   /// Useful for context clean-up and outputting closing tags. This method is
@@ -36,32 +39,26 @@ abstract class AstVisitor {
 }
 
 abstract class AstNode {
-  void accept(AstVisitor visitor) {
+  bool accept(AstVisitor visitor) {
     switch (this.runtimeType) {
       case Template:
-        visitor.visitTemplate(this);
-        break;
+        return visitor.visitTemplate(this);
       case HtmlElement:
-        visitor.visitHtmlElement(this);
-        break;
+        return visitor.visitHtmlElement(this);
       case ComponentElement:
-        visitor.visitComponentElement(this);
-        break;
+        return visitor.visitComponentElement(this);
       case Prop:
-        visitor.visitProp(this);
-        break;
+        return visitor.visitProp(this);
       case TextInterpolation:
-        visitor.visitTextInterpolation(this);
-        break;
+        return visitor.visitTextInterpolation(this);
       case PlainText:
-        visitor.visitPlainText(this);
-        break;
+        return visitor.visitPlainText(this);
       case Attribute:
-        visitor.visitAttribute(this);
-        break;
+        return visitor.visitAttribute(this);
       case Event:
-        visitor.visitEvent(this);
-        break;
+        return visitor.visitEvent(this);
+      case Fragment:
+        return visitor.visitFragment(this);
       default:
         throw new StateError('Unknown node type: ${this.runtimeType}');
     }
@@ -72,14 +69,16 @@ abstract class AstNodeWithChildren extends AstNode {
   List<AstNode> get children;
 
   @override
-  void accept(AstVisitor visitor) {
+  bool accept(AstVisitor visitor) {
     visitor.context.push(this);
-    super.accept(visitor);
-    for (AstNode child in children) {
-      child.accept(visitor);
+    if (!super.accept(visitor)) {
+      for (AstNode child in children) {
+        child.accept(visitor);
+      }
     }
     visitor.didVisitNode(this);
     visitor.context.pop();
+    return true;
   }
 }
 
@@ -130,6 +129,7 @@ class ComponentElement extends Element {
 
 class Fragment extends AstNodeWithChildren {
   String type;
+  String fragmentField;
   final inExpressions = <String>[];
   final outVars = <String>[];
   final childNodes = <AstNode>[];

@@ -51,27 +51,37 @@ class Binder extends AstVisitor {
   int _idx = 0;
 
   @override
-  void visitHtmlElement(HtmlElement elem) {
+  bool visitHtmlElement(HtmlElement elem) {
     elem
       ..isBound = elem.attributesAndProps.any((DataNode node) => node is Prop)
       ..nodeField = '_element${_idx++}';
+    return false;
   }
 
   @override
-  void visitComponentElement(ComponentElement elem) {
+  bool visitComponentElement(ComponentElement elem) {
     elem.nodeField = '_child${_idx++}';
+    return false;
   }
 
   @override
-  void visitTextInterpolation(TextInterpolation txti) {
+  bool visitTextInterpolation(TextInterpolation txti) {
     txti.nodeField = '_textInterpolationNode${_idx}';
     txti.valueField = '_textInterpolationValue${_idx}';
     _idx++;
+    return false;
   }
 
   @override
-  void visitProp(Prop p) {
+  bool visitProp(Prop p) {
     p.valueField = '_prop${_idx++}';
+    return false;
+  }
+
+  @override
+  bool visitFragment(Fragment f) {
+    f.fragmentField = '_fragment${_idx++}';
+    return true;
   }
 }
 
@@ -82,27 +92,37 @@ class FieldGeneratorVisitor extends AstVisitor {
   String get code => _buf.toString();
 
   @override
-  void visitHtmlElement(HtmlElement elem) {
+  bool visitHtmlElement(HtmlElement elem) {
     // Create fields only for bound nodes
     if (elem.isBound) {
       _emit(' Element ${elem.nodeField};');
     }
+    return false;
   }
 
   @override
-  void visitComponentElement(ComponentElement elem) {
+  bool visitComponentElement(ComponentElement elem) {
     _emit(' ${elem.type} ${elem.nodeField};');
+    return false;
   }
 
   @override
-  void visitTextInterpolation(TextInterpolation txti) {
+  bool visitTextInterpolation(TextInterpolation txti) {
     _emit(' Text ${txti.nodeField};');
     _emit(' String ${txti.valueField};');
+    return false;
   }
 
   @override
-  void visitProp(Prop p) {
+  bool visitProp(Prop p) {
     _emit(' var ${p.valueField};');
+    return false;
+  }
+
+  @override
+  bool visitFragment(Fragment f) {
+    _emit(' var ${f.fragmentField};');
+    return true;
   }
 
   void _emit(Object o) {
@@ -120,15 +140,16 @@ class BuildMethodVisitor extends AstVisitor {
   String get code => _buf.toString();
 
   @override
-  void visitTemplate(Template template) {
+  bool visitTemplate(Template template) {
     _emit(' @override\n'
         ' build() {'
         '   this.context = new ${_controllerClassName}();'
         '   beginHost(\'${_controllerClassName}\');');
+    return false;
   }
 
   @override
-  void visitHtmlElement(HtmlElement elem) {
+  bool visitHtmlElement(HtmlElement elem) {
     final tag = elem.tag;
     bool hasEvents = elem.attributesAndProps.any((p) => p is Event);
     if (elem.isBound) {
@@ -147,10 +168,11 @@ class BuildMethodVisitor extends AstVisitor {
         _emitSubscription(elem.nodeField, e);
       });
     }
+    return false;
   }
 
   @override
-  void visitComponentElement(ComponentElement elem) {
+  bool visitComponentElement(ComponentElement elem) {
     final tag = elem.type;
     _emit(' ${elem.nodeField} = beginChild(${tag}.viewFactory()');
     _emitAttributes(elem);
@@ -161,6 +183,7 @@ class BuildMethodVisitor extends AstVisitor {
         _emitSubscription(elem.nodeField, e);
       });
     }
+    return false;
   }
 
   _emitSubscription(String nodeVariable, Event event) {
@@ -171,13 +194,21 @@ class BuildMethodVisitor extends AstVisitor {
   }
 
   @override
-  void visitPlainText(PlainText ptxt) {
+  bool visitPlainText(PlainText ptxt) {
     _emit(" addText('''${ptxt.text}''');");
+    return false;
   }
 
   @override
-  void visitTextInterpolation(TextInterpolation txti) {
-    _emit(" ${txti.nodeField} = addTextInterpolation();");
+  bool visitTextInterpolation(TextInterpolation txti) {
+    _emit(' ${txti.nodeField} = addTextInterpolation();');
+    return false;
+  }
+
+  @override
+  bool visitFragment(Fragment f) {
+    _emit(' addFragmentPlaceholder(${f.fragmentField} = new ${f.type}());');
+    return true;
   }
 
   void _emitAttributes(Element elem) {
@@ -216,10 +247,11 @@ class UpdateMethodVisitor extends AstVisitor {
   String get code => _buf.toString();
 
   @override
-  void visitTemplate(Template template) {
+  bool visitTemplate(Template template) {
     _emit(' @override\n');
     _emit(' void update() {');
     _emit('   var _tmp;');
+    return false;
   }
 
   @override
@@ -230,15 +262,17 @@ class UpdateMethodVisitor extends AstVisitor {
   }
 
   @override
-  void visitHtmlElement(HtmlElement elem) {
+  bool visitHtmlElement(HtmlElement elem) {
     if (elem.isBound) {
       _emitPropChangeDetection(elem);
     }
+    return false;
   }
 
   @override
-  void visitComponentElement(ComponentElement elem) {
+  bool visitComponentElement(ComponentElement elem) {
     _emitPropChangeDetection(elem);
+    return false;
   }
 
   void _emitPropChangeDetection(Element elem) {
@@ -253,11 +287,12 @@ class UpdateMethodVisitor extends AstVisitor {
   }
 
   @override
-  void visitTextInterpolation(TextInterpolation ti) {
+  bool visitTextInterpolation(TextInterpolation ti) {
     _emit(' _tmp = \'\${context.${ti.expression}}\';');
     _emit(' if (!identical(_tmp, ${ti.valueField})) {');
     _emit('   ${ti.nodeField}.text = ${ti.valueField} = _tmp;');
     _emit(' }');
+    return false;
   }
 
   void _emit(Object o) {

@@ -140,13 +140,14 @@ abstract class ViewNodeBuilder<C> extends ViewNode<C> {
     return childHostElement;
   }
 
-  Element addFragmentPlaceholder(FragmentController controller) {
+  Element addFragmentPlaceholder(FragmentModelController fmc) {
     Element placeholder = new TemplateElement();
     Element parent = _buildStack[_buildStackPointer];
     parent.append(placeholder);
     _buildStackPointer++;
     _buildStack[_buildStackPointer] = placeholder;
-    controller.placeholder = placeholder;
+    final fc = new FragmentController(fmc, this, /*TODO*/null);
+    fc.placeholder = placeholder;
     return placeholder;
   }
 
