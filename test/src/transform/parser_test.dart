@@ -186,6 +186,28 @@ main() {
         expect(prop.expression, 'h');
       });
     });
+
+    group('fragment controller', () {
+      parserTest('simple', '<% If (condition) %><div/><% /If %>', (Template tmpl) {
+        Fragment ifFragment = tmpl.children.single;
+        expect(ifFragment, isNotNull);
+        expect(ifFragment.type, 'If');
+        expect(ifFragment.inExpressions, ['condition']);
+        expect(ifFragment.outVars, isEmpty);
+        expect(ifFragment.childNodes, hasLength(1));
+        expect(ifFragment.children, hasLength(1));
+      });
+
+      test('should validate closing tags', () {
+        try {
+          parse('<% If (condition) %><div/><% /Fi %>');
+          fail('should have thrown');
+        } catch (e) {
+          expect(e, 'Closing fragment <% /Fi %> does not match'
+              ' opening fragment <% If %>.');
+        }
+      });
+    });
   });
 
   group('highlightLocation_', () {

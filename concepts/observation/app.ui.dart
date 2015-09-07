@@ -27,9 +27,9 @@ class Form {
 // Fragments: control UI structure
 @View('''
 <ul>
-  <% Foreach(items)(String item) { %>
+  <% For (items -> item) %>
     <li>{{prefix}} - {{item}}</li>
-  <% } %>
+  <% /For %>
 </ul>
 ''')
 class Menu {
@@ -40,14 +40,14 @@ class Menu {
 // Example: fragments can nest
 @View('''
 <table>
-  <% Foreach(rows)(Map<String, String> row) { %>
+  <% For (rows -> row) %>
     <tr>
       <td>{{row['num']}}</td>
-      <% Foreach(row['cols'])(String col) { %>
+      <% For (row['cols'] -> col) %>
         <td>{{row['pref']}} - {{col}}</td>
-      <% } %>
+      <% /For %>
     </tr>
-  <% } %>
+  <% /For %>
 </table>
 ''')
 class Table {

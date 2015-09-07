@@ -128,6 +128,25 @@ class ComponentElement extends Element {
   String toString() => super._stringify(type);
 }
 
+class Fragment extends AstNodeWithChildren {
+  String type;
+  final inExpressions = <String>[];
+  final outVars = <String>[];
+  final childNodes = <AstNode>[];
+
+  List<AstNode> get children => childNodes;
+
+  String _stringifyOutVars() => outVars.isNotEmpty
+      ? ' -> ${outVars.join(', ')}'
+      : '';
+
+  @override
+  String toString() =>
+    '<% ${type} (${inExpressions.join(', ')}${_stringifyOutVars()}) %>'
+    '${childNodes.join()}'
+    '<% /${type} %>';
+}
+
 /// Superclass for all types of nodes that deal with passing data.
 abstract class DataNode extends AstNode {}
 

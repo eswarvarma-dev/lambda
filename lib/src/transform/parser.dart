@@ -51,6 +51,7 @@ class LambdaTemplateGrammarDefinition extends GrammarDefinition {
   content() => (
       ref(htmlElement)
     | ref(componentElement)
+    | ref(fragment)
     | ref(textInterpolation)
     | ref(plainText)
   ).star();
@@ -73,7 +74,7 @@ class LambdaTemplateGrammarDefinition extends GrammarDefinition {
       ..tag = name;
   });
 
-  componentElement() => element(ref(componentElementName), (String name) {
+  componentElement() => element(ref(dartClassName), (String name) {
     return new ComponentElement()
       ..type = name;
   });
@@ -155,6 +156,38 @@ class LambdaTemplateGrammarDefinition extends GrammarDefinition {
       return elem;
     });
 
+  fragment() =>
+    string('<%')                 // 0
+    .seq(ref(space).optional())  // 1
+    .seq(ref(dartClassName))     // 2
+    .seq(ref(space).optional())  // 3
+    .seq(char('('))              // 4
+    .seq(ref(expression))        // 5
+    // TODO: parse out vars: -> a, b, c
+    .seq(char(')'))              // 6
+    .seq(ref(space).optional())  // 7
+    .seq(string('%>'))           // 8
+    .seq(ref(content))           // 9
+    .seq(string('<%'))           // 10
+    .seq(ref(space).optional())  // 11
+    .seq(char('/'))              // 12
+    .seq(ref(dartClassName))   // 13
+    .seq(ref(space).optional())  // 14
+    .seq(string('%>'))           // 15
+    .map((List tokens) {
+      String openType = tokens[2];
+      String closeType = tokens[13];
+      if (openType != closeType) {
+        throw 'Closing fragment <% /${closeType} %> does not match '
+          'opening fragment <% ${openType} %>.';
+      }
+      final fragment = new Fragment()
+        ..type = openType
+        ..inExpressions.add(tokens[5])
+        ..childNodes.addAll(tokens[9]);
+      return fragment;
+    });
+
   // TODO: differentiate between html and component names:
   //   - html tag names may contain "-"
   //   - component names may contain "$" and other Dart identifier characters
@@ -170,7 +203,7 @@ class LambdaTemplateGrammarDefinition extends GrammarDefinition {
   eventType() => pattern('a-z').seq(ref(identifierNameChar).star())
       .flatten();
 
-  componentElementName() => pattern('A-Z').seq(ref(identifierNameChar).star())
+  dartClassName() => pattern('A-Z').seq(ref(identifierNameChar).star())
       .flatten();
 
   identifierNameChar() => pattern('a-zA-Z');  // TODO: accept more
