@@ -133,9 +133,12 @@ class FieldGeneratorVisitor extends AstVisitor {
 /// Generates code for the `build` method.
 class BuildMethodVisitor extends AstVisitor {
   final String _controllerClassName;
+  final String _hostElementName;
   final _buf = new StringBuffer();
 
-  BuildMethodVisitor(this._controllerClassName);
+  BuildMethodVisitor(controllerClassName)
+    : _controllerClassName = controllerClassName,
+      _hostElementName = snakeCase(controllerClassName);
 
   String get code => _buf.toString();
 
@@ -144,7 +147,7 @@ class BuildMethodVisitor extends AstVisitor {
     _emit(' @override\n'
         ' build() {'
         '   this.context = new ${_controllerClassName}();'
-        '   beginHost(\'${_controllerClassName}\');');
+        '   beginHost(\'${_hostElementName}\');');
     return false;
   }
 
@@ -298,4 +301,16 @@ class UpdateMethodVisitor extends AstVisitor {
   void _emit(Object o) {
     _buf.write(o);
   }
+}
+
+String snakeCase(String s) {
+  final buf = new StringBuffer(s[0].toLowerCase());
+  for (int i = 1; i < s.length; i++) {
+    var lowerCaseChar = s[i].toLowerCase();
+    if (lowerCaseChar != s[i]) {
+      buf.write('-');
+    }
+    buf.write(lowerCaseChar);
+  }
+  return buf.toString();
 }

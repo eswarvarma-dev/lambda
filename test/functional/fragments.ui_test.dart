@@ -23,7 +23,7 @@ main() {
     test('should build', () {
       view.build();
       expect(view.hostElement.outerHtml,
-          '<withfragment><div><template></template></div></withfragment>');
+          '<with-fragment><div><template></template></div></with-fragment>');
     });
   });
 }

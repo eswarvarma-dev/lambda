@@ -13,7 +13,7 @@ class Button$View extends ViewNodeBuilder<Button> {
   @override
   void build() {
     context = new Button();  // TODO: DI can take place here
-    beginHost('Button');
+    beginHost('button');
       _boundNode0 = beginElement('div');
         addClass('button');
         _boundNode1 = addTextInterpolation();
@@ -48,7 +48,7 @@ class Form$View extends ViewNodeBuilder<Form> {
   void build() {
     context = new Form();
     _child0 = new Button$View()..build();
-    beginHost('Form');
+    beginHost('form');
       beginChild(_child0);
       endElement();
     endHost();
@@ -72,7 +72,7 @@ class Menu$View extends ViewNodeBuilder<Menu> {
     _fragmentController0 = new FragmentController(
       new Foreach(), this, Menu$Fragment0.fragmentFactory);
 
-    beginHost('Menu');
+    beginHost('menu');
       beginElement('ul');
         addFragmentPlaceholder(_fragmentController0);
       endElement();

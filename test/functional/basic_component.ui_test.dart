@@ -48,7 +48,7 @@ main() {
     test('should build', () {
       view.build();
       expect(view.hostElement.outerHtml,
-          '<primitivecomponent><div>hello</div></primitivecomponent>');
+          '<primitive-component><div>hello</div></primitive-component>');
     });
 
     test('should update', () {
@@ -68,14 +68,14 @@ main() {
     test('should build with no data', () {
       view.build();
       expect(view.hostElement.outerHtml,
-          '<withtextinterpolation><div> </div></withtextinterpolation>');
+          '<with-text-interpolation><div> </div></with-text-interpolation>');
     });
 
     test('should update with some data', () {
       view.build();
       view.update();
       expect(view.hostElement.outerHtml,
-          '<withtextinterpolation><div>hello</div></withtextinterpolation>');
+          '<with-text-interpolation><div>hello</div></with-text-interpolation>');
     });
   });
 
@@ -89,22 +89,22 @@ main() {
     test('should build with no data', () {
       view.build();
       expect(view.hostElement.outerHtml,
-          '<withprop><div></div></withprop>');
+          '<with-prop><div></div></with-prop>');
     });
 
     test('should update with some data', () {
       view.build();
       view.update();
       expect(view.hostElement.outerHtml,
-          '<withprop><div id="id1"></div></withprop>');
+          '<with-prop><div id="id1"></div></with-prop>');
 
       WithProp ctrl = view.context;
       ctrl.id = 'id2';
       expect(view.hostElement.outerHtml,
-          '<withprop><div id="id1"></div></withprop>');
+          '<with-prop><div id="id1"></div></with-prop>');
       view.update();
       expect(view.hostElement.outerHtml,
-          '<withprop><div id="id2"></div></withprop>');
+          '<with-prop><div id="id2"></div></with-prop>');
     });
   });
 

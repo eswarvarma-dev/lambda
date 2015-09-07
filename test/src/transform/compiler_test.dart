@@ -19,7 +19,7 @@ main() {
           @override
           build() {
             this.context = new Foo();
-            beginHost(\'Foo\');
+            beginHost(\'foo\');
             beginElement(\'div\');
             endElement();
             endHost();
@@ -138,7 +138,7 @@ void compileTest(String description, String source, String expectation) {
     @override
     build() {
       this.context = new Foo();
-      beginHost('Foo');
+      beginHost('foo');
       ${expectation.trim()}
       endHost();
     }
