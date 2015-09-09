@@ -5,6 +5,9 @@ abstract class BaseBinder extends AstVisitor {
 
   int _idx = 0;
 
+  /// Fragments that are direct children of the visited fragment
+  final fragments = <Fragment>[];
+
   @override
   bool visitHtmlElement(HtmlElement elem) {
     elem
@@ -36,6 +39,7 @@ abstract class BaseBinder extends AstVisitor {
   @override
   bool visitFragment(Fragment f) {
     f.fragmentField = '_fragment${_idx++}';
+    fragments.add(f);
     return true;
   }
 }

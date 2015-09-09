@@ -7,21 +7,6 @@ abstract class BaseUpdateMethodVisitor extends AstVisitor {
   String get code => _buf.toString();
 
   @override
-  bool visitTemplate(Template template) {
-    _emit(' @override\n');
-    _emit(' void update() {');
-    _emit('   var _tmp;');
-    return false;
-  }
-
-  @override
-  void didVisitNode(AstNode node) {
-    if (node is Template) {
-      _emit(' }');
-    }
-  }
-
-  @override
   bool visitHtmlElement(HtmlElement elem) {
     if (elem.isBound) {
       _emitPropChangeDetection(elem);

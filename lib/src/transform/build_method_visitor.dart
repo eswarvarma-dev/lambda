@@ -2,24 +2,9 @@ part of lambda.compiler;
 
 /// Generates code for the `build` method.
 abstract class BaseBuildMethodVisitor extends AstVisitor {
-  final String _controllerClassName;
-  final String _hostElementName;
   final _buf = new StringBuffer();
 
-  BaseBuildMethodVisitor(controllerClassName)
-    : _controllerClassName = controllerClassName,
-      _hostElementName = snakeCase(controllerClassName);
-
   String get code => _buf.toString();
-
-  @override
-  bool visitTemplate(Template template) {
-    _emit(' @override\n'
-        ' build() {'
-        '   this.context = new ${_controllerClassName}();'
-        '   beginHost(\'${_hostElementName}\');');
-    return false;
-  }
 
   @override
   bool visitHtmlElement(HtmlElement elem) {
@@ -97,15 +82,9 @@ abstract class BaseBuildMethodVisitor extends AstVisitor {
 
   @override
   void didVisitNode(AstNode node) {
-    if (node is Template) {
-      _emitBuildFooter();
-    } else if (node is Element) {
+    if (node is Element) {
       _emit(' endElement();');
     }
-  }
-
-  void _emitBuildFooter() {
-    _emit(' endHost(); }');
   }
 
   void _emit(Object o) {
