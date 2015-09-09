@@ -1,7 +1,7 @@
 part of lambda.compiler;
 
 /// Generates bound fields.
-class FieldGeneratorVisitor extends AstVisitor {
+abstract class BaseFieldGeneratorVisitor extends AstVisitor {
   final _buf = new StringBuffer();
 
   String get code => _buf.toString();

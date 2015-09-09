@@ -6,6 +6,7 @@ part 'binder.dart';
 part 'field_generator_visitor.dart';
 part 'build_method_visitor.dart';
 part 'update_method_visitor.dart';
+part 'template_visitors.dart';
 
 /// Turns a Lambda template to Dart code.
 class TemplateCompiler {
@@ -16,10 +17,11 @@ class TemplateCompiler {
   TemplateCompiler(this._controllerClassName, this._source);
 
   String compile() {
-    final binder = new Binder();
-    final fieldGeneratorVisitor = new FieldGeneratorVisitor();
-    final buildMethodVisitor = new BuildMethodVisitor(_controllerClassName);
-    final updateMethodVisitor = new UpdateMethodVisitor();
+    final binder = new TemplateBinder();
+    final fieldGeneratorVisitor = new TemplateFieldGeneratorVisitor();
+    final buildMethodVisitor =
+        new TemplateBuildMethodVisitor(_controllerClassName);
+    final updateMethodVisitor = new TemplateUpdateMethodVisitor();
     final template = parse(_source);
     template
       ..accept(binder)

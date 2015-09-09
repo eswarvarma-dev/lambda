@@ -1,7 +1,7 @@
 part of lambda.compiler;
 
 /// Enriches the AST with binding code information, such as field names.
-class Binder extends AstVisitor {
+abstract class BaseBinder extends AstVisitor {
 
   int _idx = 0;
 

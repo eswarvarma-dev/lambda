@@ -1,7 +1,7 @@
 part of lambda.compiler;
 
 /// Generates code for the `update` method.
-class UpdateMethodVisitor extends AstVisitor {
+abstract class BaseUpdateMethodVisitor extends AstVisitor {
   final _buf = new StringBuffer();
 
   String get code => _buf.toString();

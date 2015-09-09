@@ -1,12 +1,12 @@
 part of lambda.compiler;
 
 /// Generates code for the `build` method.
-class BuildMethodVisitor extends AstVisitor {
+abstract class BaseBuildMethodVisitor extends AstVisitor {
   final String _controllerClassName;
   final String _hostElementName;
   final _buf = new StringBuffer();
 
-  BuildMethodVisitor(controllerClassName)
+  BaseBuildMethodVisitor(controllerClassName)
     : _controllerClassName = controllerClassName,
       _hostElementName = snakeCase(controllerClassName);
 

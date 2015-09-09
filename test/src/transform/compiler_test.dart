@@ -130,9 +130,9 @@ main() {
 
 void compileTest(String description, String source, String expectation) {
   test(description, () {
-    final buildVisitor = new BuildMethodVisitor('Foo');
+    final buildVisitor = new TemplateBuildMethodVisitor('Foo');
     parse(source)
-      ..accept(new Binder())
+      ..accept(new TemplateBinder())
       ..accept(buildVisitor);
     final fmtExpected = fmt('''
     @override
