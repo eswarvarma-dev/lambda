@@ -194,7 +194,7 @@ class LambdaTemplateGrammarDefinition extends GrammarDefinition {
       }
       final fragment = new Fragment()
         ..type = openType
-        ..inExpressions.add(tokens[5])
+        ..inputExpression = tokens[5]
         ..childNodes.addAll(tokens[10]);
       if (tokens[6] is List) {
         fragment.outVars.addAll(tokens[6]);

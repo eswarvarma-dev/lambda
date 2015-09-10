@@ -122,7 +122,7 @@ main() {
       'fragment',
       '<% For (items -> item) %><div/><% /For %>',
       """
-      addFragmentPlaceholder(_fragment0 = new For());
+      addFragmentPlaceholder(_fragment0 = Foo\$View\$Fragment\$0.create());
       """
     );
   });
@@ -132,7 +132,7 @@ void compileTest(String description, String source, String expectation) {
   test(description, () {
     final buildVisitor = new TemplateBuildMethodVisitor('Foo');
     parse(source)
-      ..accept(new TemplateBinder())
+      ..accept(new TemplateBinder('Foo\$View'))
       ..accept(buildVisitor);
     final fmtExpected = fmt('''
     @override

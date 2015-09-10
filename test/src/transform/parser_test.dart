@@ -192,7 +192,7 @@ main() {
         Fragment frag = tmpl.children.single;
         expect(frag, isNotNull);
         expect(frag.type, 'If');
-        expect(frag.inExpressions, ['condition']);
+        expect(frag.inputExpression, 'condition');
         expect(frag.outVars, isEmpty);
         expect(frag.childNodes, hasLength(1));
         expect(frag.children, hasLength(1));
@@ -213,7 +213,7 @@ main() {
           '<% For (items -> item) %><% /For %>',
           (Template tmpl) {
         Fragment frag = tmpl.children.single;
-        expect(frag.inExpressions, ['items']);
+        expect(frag.inputExpression, 'items');
         expect(frag.outVars, ['item']);
       });
     });

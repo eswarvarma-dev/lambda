@@ -22,34 +22,38 @@ class View {
 /// fragments of templates enclosed within the fragment block by converting
 /// an input value into a [List] of items, each corresponding to an instance
 /// of a template fragment.
-abstract class FragmentModelController<C, T, E> {
-  List<E> render(T input);
-}
-
-typedef ViewNode FragmentFactory(ViewNode parentView, dynamic data);
-
-class FragmentController {
-  final FragmentModelController _controller;
-  final ViewNode _parentView;
-  final FragmentFactory _factory;
+abstract class FragmentController<I, F extends Function> {
+  final F fragmentFactory;
   final _fragments = <ViewNode>[];
-  Element placeholder;
+  Node placeholder;
 
-  FragmentController(this._controller, this._parentView, this._factory);
+  FragmentController(this.fragmentFactory);
 
-  void update(dynamic input) {
-    // TODO: super naive implementation
-    List items = _controller.render(input);
+  updateFragments() {
     for (int i = 0; i < _fragments.length; i++) {
-      _fragments[i].detach();
-    }
-    _fragments.clear();
-    for (int i = 0; i < items.length; i++) {
-      final item = items[i];
-      final fragment = _factory(_parentView, item);
-      _fragments.add(fragment);
+      _fragments[i].update();
     }
   }
+
+  insert(int index, ViewNode f) {
+    Node anchor = placeholder;
+    if (index < _fragments.length) {
+      anchor = _fragments.last.rootNodes.first;
+    }
+    final nodes = f.rootNodes;
+    final parent = anchor.parent;
+    for (int i = 0; i < nodes.length; i++) {
+      parent.insertBefore(nodes[i], anchor);
+    }
+    _fragments.insert(index, f);
+  }
+
+  remove(int index) {
+    _fragments[index].detach();
+  }
+
+  /// Called during change detection.
+  void render(I input);
 }
 
 final _buildStack = new List<Element>(100);
@@ -58,7 +62,14 @@ int _buildStackPointer = -1;
 abstract class ViewNode<C> {
   C context;
   Element hostElement;
-  List<Node> ownedNodes;
+  List<Node> _rootNodes;
+
+  List<Node> get rootNodes => _rootNodes;
+
+  void addRootNode(Node node) {
+    if (_rootNodes == null) _rootNodes = [];
+    _rootNodes.add(node);
+  }
 
   void build();
   void update();
@@ -67,10 +78,10 @@ abstract class ViewNode<C> {
     if (hostElement != null) {
       hostElement.remove();
     }
-    if (ownedNodes != null && ownedNodes.isNotEmpty) {
-      final len = ownedNodes.length;
+    if (rootNodes != null && rootNodes.isNotEmpty) {
+      final len = rootNodes.length;
       for (int i = 0; i < len; i++) {
-        ownedNodes[i].remove();
+        rootNodes[i].remove();
       }
     }
   }
@@ -112,41 +123,23 @@ abstract class ViewNodeBuilder<C> extends ViewNode<C> {
 
   Element beginElement(String tag, {Map<String, String> attrs}) {
     Element element = new Element.tag(tag);
-    Element parent = _buildStack[_buildStackPointer];
-    parent.append(element);
+    _appendNode(element);
     _buildStackPointer++;
     _buildStack[_buildStackPointer] = element;
-    return element;
-  }
-
-  Element beginOwnedElement(String tag) {
-    Element element = new Element.tag(tag);
-    Element parent = _buildStack[_buildStackPointer];
-    parent.append(element);
-    _buildStackPointer++;
-    _buildStack[_buildStackPointer] = element;
-    if (_buildStackPointer == 0) {
-      ownedNodes.add(element);
-    }
     return element;
   }
 
   Element beginChild(ViewNode child) {
     Element childHostElement = child.hostElement;
-    Element parent = _buildStack[_buildStackPointer];
-    parent.append(childHostElement);
+    _appendNode(childHostElement);
     _buildStackPointer++;
     _buildStack[_buildStackPointer] = childHostElement;
     return childHostElement;
   }
 
-  Element addFragmentPlaceholder(FragmentModelController fmc) {
-    Element placeholder = new TemplateElement();
-    Element parent = _buildStack[_buildStackPointer];
-    parent.append(placeholder);
-    _buildStackPointer++;
-    _buildStack[_buildStackPointer] = placeholder;
-    final fc = new FragmentController(fmc, this, /*TODO*/null);
+  Node addFragmentPlaceholder(FragmentController fc) {
+    Comment placeholder = new Comment();
+    _appendNode(placeholder);
     fc.placeholder = placeholder;
     return placeholder;
   }
@@ -160,16 +153,23 @@ abstract class ViewNodeBuilder<C> extends ViewNode<C> {
   }
 
   Node addTextInterpolation() {
-    Element parent = _buildStack[_buildStackPointer];
     Text textNode = new Text(' ');
-    parent.append(textNode);
+    _appendNode(textNode);
     return textNode;
   }
 
   Node addText(String text) {
-    Element parent = _buildStack[_buildStackPointer];
     Text textNode = new Text(text);
-    parent.append(textNode);
+    _appendNode(textNode);
     return textNode;
+  }
+
+  _appendNode(Node child) {
+    if (_buildStackPointer == -1) {
+      addRootNode(child);
+    } else {
+      Element parent = _buildStack[_buildStackPointer];
+      parent.append(child);
+    }
   }
 }

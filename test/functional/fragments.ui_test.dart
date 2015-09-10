@@ -7,9 +7,11 @@ import 'package:test/test.dart';
 
 @LambdaUi()
 
-@View('<div><% If(visible) %><% /If %></div>')
+@View('<div><% If(visible) %><span/><% /If %></div>')
 class WithFragment {
   static ViewNode viewFactory() => null;
+
+  bool visible = false;
 }
 
 main() {
@@ -23,7 +25,21 @@ main() {
     test('should build', () {
       view.build();
       expect(view.hostElement.outerHtml,
-          '<with-fragment><div><template></template></div></with-fragment>');
+          '<with-fragment><div><!----></div></with-fragment>');
+    });
+
+    test('should show and hide content', () {
+      view.build();
+      WithFragment ctrl = view.context;
+      ctrl.visible = true;
+      view.update();
+      expect(view.hostElement.outerHtml,
+          '<with-fragment><div><span></span><!----></div></with-fragment>');
+
+      ctrl.visible = false;
+      view.update();
+      expect(view.hostElement.outerHtml,
+          '<with-fragment><div><!----></div></with-fragment>');
     });
   });
 }

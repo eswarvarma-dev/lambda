@@ -1,6 +1,8 @@
 part of lambda.compiler;
 
-class TemplateBinder extends BaseBinder {}
+class TemplateBinder extends BaseBinder {
+  TemplateBinder(String viewClassName) : super(viewClassName);
+}
 
 class TemplateFieldGeneratorVisitor extends BaseFieldGeneratorVisitor {}
 

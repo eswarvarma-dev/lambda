@@ -2,13 +2,25 @@ library lambda.if_;
 
 import 'package:lambda/lambda.dart';
 
-class If extends FragmentModelController<dynamic, bool, dynamic> {
+typedef ViewNode IfFragmentFactory();
 
-  static const _SHOW = const [true];
-  static const _HIDE = const [];
+class If extends FragmentController<bool, IfFragmentFactory> {
 
-  @override
-  List render(bool condition) {
-    return condition ? _SHOW : _HIDE;
+  bool _lastCondition = false;
+
+  If(IfFragmentFactory f) : super(f);
+
+  void render(bool condition) {
+    // users should provide reasonable non-null defaults
+    assert(condition != null);
+    if (condition != _lastCondition) {
+      if (condition) {
+        ViewNode fragment = fragmentFactory()..build();
+        this.insert(0, fragment);
+      } else {
+        this.remove(0);
+      }
+      _lastCondition = condition;
+    }
   }
 }

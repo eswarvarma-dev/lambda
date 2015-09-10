@@ -12,6 +12,9 @@ abstract class RootTracker {
 }
 
 class FragmentBinder extends BaseBinder with RootTracker {
+
+  FragmentBinder(String viewClassName) : super(viewClassName);
+
   @override
   bool visitFragment(Fragment node) {
     if (isRoot(node)) {

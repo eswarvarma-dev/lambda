@@ -37,6 +37,7 @@ abstract class BaseFieldGeneratorVisitor extends AstVisitor {
   @override
   bool visitFragment(Fragment f) {
     _emit(' var ${f.fragmentField};');
+    _emit(' var ${f.inputValueField};');
     return true;
   }
 

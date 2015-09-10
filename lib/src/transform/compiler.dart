@@ -21,7 +21,7 @@ class TemplateCompiler {
   }
 
   String compile() {
-    final binder = new TemplateBinder();
+    final binder = new TemplateBinder(_viewClassName);
     final fieldGenerator = new TemplateFieldGeneratorVisitor();
     final buildMethod =
         new TemplateBuildMethodVisitor(_controllerClassName);
@@ -33,19 +33,17 @@ class TemplateCompiler {
       ..accept(buildMethod)
       ..accept(updateMethod);
 
+    for (int i = 0; i < binder.fragments.length; i++) {
+      final fragment = binder.fragments[i];
+      final fc = new FragmentCompiler(_controllerClassName, fragment);
+      _emit(fc.compile());
+    };
+
     _emitViewHeader();
     _emit(fieldGenerator.code);
     _emit(buildMethod.code);
     _emit(updateMethod.code);
     _emitViewFooter();
-
-    for (int i = 0; i < binder.fragments.length; i++) {
-      final fragment = binder.fragments[i];
-      final fragmentClassName = '${_viewClassName}\$Fragment\$${i}';
-      final fc = new FragmentCompiler(_controllerClassName, fragmentClassName,
-          fragment);
-      _emit(fc.compile());
-    };
 
     return _buf.toString();
   }
@@ -66,15 +64,13 @@ class TemplateCompiler {
 
 class FragmentCompiler {
   final String _controllerClassName;
-  final String _fragmentClassName;
   final Fragment _fragment;
   final _buf = new StringBuffer();
 
-  FragmentCompiler(this._controllerClassName, this._fragmentClassName,
-      this._fragment);
+  FragmentCompiler(this._controllerClassName, this._fragment);
 
   String compile() {
-    final binder = new FragmentBinder();
+    final binder = new FragmentBinder(_fragment.generatedClassName);
     final fieldGenerator = new FragmentFieldGeneratorVisitor();
     final buildMethod = new FragmentBuildMethodVisitor();
     final updateMethod = new FragmentUpdateMethodVisitor();
@@ -92,9 +88,7 @@ class FragmentCompiler {
 
     for (int i = 0; i < binder.fragments.length; i++) {
       final fragment = binder.fragments[i];
-      final fragmentClassName = '${_fragmentClassName}\$Fragment\$${i}';
-      final fc = new FragmentCompiler(_controllerClassName, fragmentClassName,
-          fragment);
+      final fc = new FragmentCompiler(_controllerClassName, fragment);
       _emit(fc.compile());
     };
 
@@ -106,8 +100,18 @@ class FragmentCompiler {
   }
 
   void _emitFragmentHeader() {
-    _emit(' class ${_fragmentClassName}');
+    _emit(' class ${_fragment.generatedClassName}');
     _emit(' extends ViewNodeBuilder<${_controllerClassName}> {');
+    _emit('   static ${_fragment.type} create() =>');
+    _emit('     new ${_fragment.type}(_factory);');
+    _emit('   static ${_fragment.generatedClassName}');
+    _emit('       _factory(${_fragment.outVars.join(',')}) {');
+    _emit('     return new ${_fragment.generatedClassName}()');
+    for(String outVar in _fragment.outVars) {
+      _emit('     ..${outVar} = ${outVar}');
+    }
+    _emit('     ;');
+    _emit('   }');
   }
 
   void _emitFragmentFooter() {

@@ -129,10 +129,13 @@ class ComponentElement extends Element {
 
 class Fragment extends AstNodeWithChildren {
   String type;
-  String fragmentField;
-  final inExpressions = <String>[];
+  String inputExpression;
+  String inputValueField;
   final outVars = <String>[];
   final childNodes = <AstNode>[];
+
+  String generatedClassName;
+  String fragmentField;
 
   List<AstNode> get children => childNodes;
 
@@ -142,7 +145,7 @@ class Fragment extends AstNodeWithChildren {
 
   @override
   String toString() =>
-    '<% ${type} (${inExpressions.join(', ')}${_stringifyOutVars()}) %>'
+    '<% ${type} (${inputExpression}${_stringifyOutVars()}) %>'
     '${childNodes.join()}'
     '<% /${type} %>';
 }

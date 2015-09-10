@@ -65,7 +65,8 @@ abstract class BaseBuildMethodVisitor extends AstVisitor {
 
   @override
   bool visitFragment(Fragment f) {
-    _emit(' addFragmentPlaceholder(${f.fragmentField} = new ${f.type}());');
+    _emit(' addFragmentPlaceholder(${f.fragmentField} =');
+    _emit(' ${f.generatedClassName}.create());');
     return true;
   }
 
