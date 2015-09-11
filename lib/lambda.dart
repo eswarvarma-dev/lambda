@@ -29,35 +29,56 @@ abstract class FragmentController<I, F extends Function> {
 
   FragmentController(this.fragmentFactory);
 
-  updateFragments() {
+  List<ViewNode> get fragments => _fragments;
+
+  void updateFragments() {
     for (int i = 0; i < _fragments.length; i++) {
       _fragments[i].update();
     }
   }
 
-  insert(int index, ViewNode f) {
+  void insert(int index, ViewNode f) {
+    _insertNodes(index, f);
+    _fragments.insert(index, f);
+  }
+
+  void _insertNodes(int index, ViewNode f) {
     Node anchor = placeholder;
     if (index < _fragments.length) {
-      anchor = _fragments.last.rootNodes.first;
+      anchor = _fragments[index].rootNodes.first;
     }
     final nodes = f.rootNodes;
     final parent = anchor.parent;
     for (int i = 0; i < nodes.length; i++) {
       parent.insertBefore(nodes[i], anchor);
     }
-    _fragments.insert(index, f);
   }
 
-  remove(int index) {
+  void replace(int index, ViewNode f) {
+    _insertNodes(index, f);
     _fragments[index].detach();
+    _fragments[index] = f;
+  }
+
+  void append(ViewNode f) {
+    _insertNodes(_fragments.length, f);
+    _fragments.add(f);
+  }
+
+  void remove(int index) {
+    _fragments.removeAt(index).detach();
+  }
+
+  void clear() {
+    while (_fragments.length > 0) {
+      this.remove(0);
+    }
+    assert(this._fragments.isEmpty);
   }
 
   /// Called during change detection.
   void render(I input);
 }
-
-final _buildStack = new List<Element>(100);
-int _buildStackPointer = -1;
 
 abstract class ViewNode<C> {
   C context;
@@ -74,6 +95,7 @@ abstract class ViewNode<C> {
   void build();
   void update();
 
+  // TODO: detach nested fragments
   void detach() {
     if (hostElement != null) {
       hostElement.remove();
@@ -90,11 +112,16 @@ abstract class ViewNode<C> {
 /// A utility for building [ViewNode]s.
 abstract class ViewNodeBuilder<C> extends ViewNode<C> {
 
+  static final _buildStack = new List<Element>(100);
+  static int _buildStackPointer = -1;
+  static bool get isStackEmpty => _buildStackPointer == -1;
+
   List<StreamSubscription> _subscriptions;
 
   void subscribe(Stream stream, Function callback) {
     trackSubscription(stream.listen(callback));
   }
+
   void trackSubscription(StreamSubscription sub) {
     if (_subscriptions == null) _subscriptions = <StreamSubscription>[];
     _subscriptions.add(sub);
@@ -166,7 +193,7 @@ abstract class ViewNodeBuilder<C> extends ViewNode<C> {
 
   _appendNode(Node child) {
     if (_buildStackPointer == -1) {
-      addRootNode(child);
+      super.addRootNode(child);
     } else {
       Element parent = _buildStack[_buildStackPointer];
       parent.append(child);

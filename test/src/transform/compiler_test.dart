@@ -18,6 +18,7 @@ main() {
         class Foo\$View extends ViewNodeBuilder<Foo> {
           @override
           build() {
+            assert(ViewNodeBuilder.isStackEmpty);
             this.context = new Foo();
             beginHost(\'foo\');
             beginElement(\'div\');
@@ -137,6 +138,7 @@ void compileTest(String description, String source, String expectation) {
     final fmtExpected = fmt('''
     @override
     build() {
+      assert(ViewNodeBuilder.isStackEmpty);
       this.context = new Foo();
       beginHost('foo');
       ${expectation.trim()}

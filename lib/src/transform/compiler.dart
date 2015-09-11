@@ -112,6 +112,9 @@ class FragmentCompiler {
     }
     _emit('     ;');
     _emit('   }');
+    for(String outVar in _fragment.outVars) {
+      _emit(' var ${outVar};');
+    }
   }
 
   void _emitFragmentFooter() {

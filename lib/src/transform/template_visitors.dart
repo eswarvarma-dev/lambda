@@ -18,6 +18,7 @@ class TemplateBuildMethodVisitor extends BaseBuildMethodVisitor {
   bool visitTemplate(Template template) {
     _emit(' @override\n');
     _emit(' build() {');
+    _emit('   assert(ViewNodeBuilder.isStackEmpty);');
     _emit('   this.context = new ${_controllerClassName}();');
     _emit('   beginHost(\'${_hostElementName}\');');
     return false;

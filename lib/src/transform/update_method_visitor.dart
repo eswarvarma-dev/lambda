@@ -43,9 +43,7 @@ abstract class BaseUpdateMethodVisitor extends AstVisitor {
   @override
   bool visitFragment(Fragment f) {
     _emit(' _tmp = context.${f.inputExpression};');
-    _emit(' if (!identical(_tmp, ${f.inputValueField})) {');
-    _emit('   ${f.fragmentField}.render(${f.inputValueField} = _tmp);');
-    _emit(' }');
+    _emit(' ${f.fragmentField}.render(${f.inputValueField} = _tmp);');
     _emit(' ${f.fragmentField}.updateFragments();');
     return true;
   }

@@ -45,6 +45,7 @@ class FragmentBuildMethodVisitor extends BaseBuildMethodVisitor
     if (isRoot(node)) {
       _emit(' @override\n');
       _emit(' build() {');
+      _emit('   assert(ViewNodeBuilder.isStackEmpty);');
       return false;
     } else {
       return super.visitFragment(node);
