@@ -61,6 +61,6 @@ Premise: a mobile-first web UI toolkit for material design UIs.
 | ----- | ------- | ------ |
 | % of time spent on features  | 70%  | 30% |
 | % of time spent on performance  | 30%  | 70% |
-| users care about | capability | responsiveness |
+| hardest problem | capability | responsiveness |
 | users interact using | KVM | touch, speech |
 | features | few apps, many features | many apps, few features |
