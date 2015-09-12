@@ -6,7 +6,7 @@ import 'package:lambda/foreach.dart';
 import 'package:lambda/lambda.dart';
 import 'package:test/test.dart';
 
-@LambdaUi()
+@LambdaUi(uses: const [If, For])
 
 @View('<div><% If(visible) %><span/><% /If %></div>')
 class IfFragment {
