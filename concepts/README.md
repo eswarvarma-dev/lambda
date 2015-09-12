@@ -36,6 +36,7 @@ Premise: a mobile-first web UI toolkit for material design UIs.
   - text interpolation
   - property binding
   - events
+  - zones
   - file-by-file transformer
   - 'hello world' <150kb minified, <60kb gzipped, <2s load (~Moto X 2014)
   - match UIX/React on load time

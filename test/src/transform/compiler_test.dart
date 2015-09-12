@@ -19,8 +19,7 @@ main() {
           @override
           build() {
             assert(ViewNodeBuilder.isStackEmpty);
-            this.context = new Foo();
-            beginHost(\'foo\');
+            beginHost(\'foo\', new Foo());
             beginElement(\'div\');
             endElement();
             endHost();
@@ -139,8 +138,7 @@ void compileTest(String description, String source, String expectation) {
     @override
     build() {
       assert(ViewNodeBuilder.isStackEmpty);
-      this.context = new Foo();
-      beginHost('foo');
+      beginHost('foo', new Foo());
       ${expectation.trim()}
       endHost();
     }

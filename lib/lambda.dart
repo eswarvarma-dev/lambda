@@ -4,6 +4,17 @@ import 'dart:html';
 export 'dart:html';
 import 'dart:async';
 
+import 'zone.dart';
+
+ViewNode updateUiAutomatically(ViewNode viewFactory()) {
+  final zone = new NgZone();
+  return zone.run(() {
+    final view = viewFactory();
+    zone.overrideOnTurnDone(view.update);
+    return view..build();
+  });
+}
+
 /// A noop annotation that causes Dart analyzer to shut up about "unused"
 /// imports. Because Lambda template language can refer to symbols, it requires
 /// that those symbols are imported.
