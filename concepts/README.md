@@ -57,10 +57,10 @@ Premise: a mobile-first web UI toolkit for material design UIs.
 
 # Mobile vs Desktop
 
-|   | Desktop | Mobile |
-| - | ------- | ------ |
+| Point | Desktop | Mobile |
+| ----- | ------- | ------ |
 | % of time spent on features  | 70%  | 30% |
 | % of time spent on performance  | 30%  | 70% |
 | users care about | capability | responsiveness |
 | users interact using | KVM | touch, speech |
-| applications | few apps with lots of features | lots of apps with few features |
+| features | few apps, many features | many apps, few features |
