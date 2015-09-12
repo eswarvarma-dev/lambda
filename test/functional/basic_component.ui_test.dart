@@ -26,17 +26,6 @@ class WithProp {
   String id = 'id1';
 }
 
-@View('<button (click)="clicked" />')
-class WithEvent {
-  static ViewNode viewFactory() => null;
-
-  int clickCounter = 0;
-
-  void clicked(_) {
-    clickCounter++;
-  }
-}
-
 main() {
   group('primitive component', () {
     ViewNode view;
@@ -105,25 +94,6 @@ main() {
       view.update();
       expect(view.hostElement.outerHtml,
           '<with-prop><div id="id2"></div></with-prop>');
-    });
-  });
-
-  group('component with event', () {
-    ViewNode<WithEvent> view;
-
-    setUp(() {
-      view = WithEvent.viewFactory();
-    });
-
-    test('should capture events', () {
-      view.build();
-      WithEvent ctrl = view.context;
-      expect(ctrl.clickCounter, 0);
-      ButtonElement btn = view.hostElement.children.single;
-      btn.click();
-      expect(ctrl.clickCounter, 1);
-      btn.click();
-      expect(ctrl.clickCounter, 2);
     });
   });
 }
