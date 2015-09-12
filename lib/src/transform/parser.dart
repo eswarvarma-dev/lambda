@@ -54,6 +54,7 @@ class LambdaTemplateGrammarDefinition extends GrammarDefinition {
     | ref(fragment)
     | ref(textInterpolation)
     | ref(plainText)
+    | ref(space)
   ).star();
 
   /// Parses text interpolation of the form `{{expression}}`.
@@ -62,14 +63,15 @@ class LambdaTemplateGrammarDefinition extends GrammarDefinition {
     .seq(pattern('a-z.A-Z').plus().flatten())  // TODO: accept more
     .seq(string('}}')).map((List tokens) {
       return new TextInterpolation()
-        ..expression = tokens[1];
+        ..expression = _parseExpression(tokens[1]);
     });
 
   /// Parses a template expression, currently only of the form `foo.bar.baz`.
   expression() =>
     (pattern('a-zA-Z').plus())
     .optional(char('.').seq((pattern('a-zA-Z').plus())))
-    .flatten();
+    .flatten()
+    .map(_parseExpression);
 
   htmlElement() => element(ref(htmlElementName), (String name) {
     return new HtmlElement()
@@ -100,7 +102,7 @@ class LambdaTemplateGrammarDefinition extends GrammarDefinition {
 
   prop() =>
     char('[')
-    .seq(ref(property))
+    .seq(ref(dartVariableName))
     .seq(char(']'))
     .seq(ref(space).optional())
     .seq(char('='))
@@ -109,7 +111,7 @@ class LambdaTemplateGrammarDefinition extends GrammarDefinition {
     .map((List tokens) {
       return new Prop()
         ..property = tokens[1]
-        ..expression = tokens[6];
+        ..expression = _parseExpression(tokens[6]);
     });
 
   event() =>
@@ -162,7 +164,7 @@ class LambdaTemplateGrammarDefinition extends GrammarDefinition {
     ref(space).optional()
     .seq(string('->'))
     .seq(ref(space).optional())
-    .seq(ref(expression))
+    .seq(ref(dartVariableName))
     .map((List tokens) {
       return [tokens[3]];
     });
@@ -211,7 +213,7 @@ class LambdaTemplateGrammarDefinition extends GrammarDefinition {
   attributeName() => pattern('a-z').seq(ref(identifierNameChar).star())
       .flatten();
 
-  property() => pattern('a-z').seq(ref(identifierNameChar).star())
+  dartVariableName() => pattern('a-z').seq(ref(identifierNameChar).star())
       .flatten();
 
   eventType() => pattern('a-z').seq(ref(identifierNameChar).star())
@@ -299,4 +301,14 @@ class AttributeValueParser extends Parser {
 
   @override
   String toString() => 'AttributeValueParser';
+}
+
+// TODO: build proper expression grammar for extensibility and correctness
+Expression _parseExpression(String expressionString) {
+  final terms = expressionString.split('.');
+  final isThis = (terms.first == 'this');
+  final expr = new Expression()
+    ..isThis = isThis
+    ..terms.addAll(isThis ? terms.skip(1) : terms);
+  return expr;
 }

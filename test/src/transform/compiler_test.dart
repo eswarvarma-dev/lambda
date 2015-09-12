@@ -123,7 +123,7 @@ main() {
       'fragment',
       '<% For (items -> item) %><div/><% /For %>',
       """
-      addFragmentPlaceholder(_fragment0 = Foo\$View\$Fragment\$0.create());
+      addFragmentController(_fragment0 = Foo\$View\$Fragment\$0.create());
       """
     );
   });

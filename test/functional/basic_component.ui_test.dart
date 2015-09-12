@@ -1,7 +1,6 @@
 @TestOn('browser')
 library tests.basic_component;
 
-import 'dart:html';
 import 'package:lambda/lambda.dart';
 import 'package:test/test.dart';
 

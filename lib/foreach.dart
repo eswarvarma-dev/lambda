@@ -89,7 +89,7 @@ class For extends FragmentController<TrackList, ForFragmentFactory> {
       super.clear();
     } else if (_lastSeenList == null || _lastSeenList.isEmpty) {
       for (int i = 0; i < list.length; i++) {
-        final fragment = fragmentFactory(list[i])..build();
+        final fragment = _createFragment(list[i]);
         super.append(fragment);
       }
     } else if (!identical(list, _lastSeenList)) {
@@ -101,7 +101,7 @@ class For extends FragmentController<TrackList, ForFragmentFactory> {
         final elem = list[i];
         final existingIndex = _indexOfReference(previousElements, elem);
         if (existingIndex == -1) {
-          final fragment = fragmentFactory(elem)..build();
+          final fragment = _createFragment(elem);
           super.append(fragment);
         } else {
           previousElements[existingIndex] = _USED_MARKER;
@@ -114,12 +114,12 @@ class For extends FragmentController<TrackList, ForFragmentFactory> {
         // TODO: collapse removes and readds into moves
         final change = _lastSeenList._changes[i];
         if (change.type == ListChangeType.insert) {
-          final fragment = fragmentFactory(change.element)..build();
+          final fragment = _createFragment(change.element);
           super.insert(change.index, fragment);
         } else if (change.type == ListChangeType.remove) {
           super.remove(change.index);
         } else if (change.type == ListChangeType.replace) {
-          final fragment = fragmentFactory(change.element)..build();
+          final fragment = _createFragment(change.element);
           super.replace(change.index, fragment);
         } else {
           assert(() {
@@ -129,5 +129,12 @@ class For extends FragmentController<TrackList, ForFragmentFactory> {
       }
     }
     _lastSeenList = list;
+    updateFragments();
+  }
+
+  ViewNode _createFragment(dynamic element) {
+    return fragmentFactory(element)
+      ..context = super.context
+      ..build();
   }
 }

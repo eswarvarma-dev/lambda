@@ -19,8 +19,7 @@ class TemplateBuildMethodVisitor extends BaseBuildMethodVisitor {
     _emit(' @override\n');
     _emit(' build() {');
     _emit('   assert(ViewNodeBuilder.isStackEmpty);');
-    _emit('   this.context = new ${_controllerClassName}();');
-    _emit('   beginHost(\'${_hostElementName}\');');
+    _emit('   beginHost(\'${_hostElementName}\', new ${_controllerClassName}());');
     return false;
   }
 
@@ -38,6 +37,10 @@ class TemplateBuildMethodVisitor extends BaseBuildMethodVisitor {
 }
 
 class TemplateUpdateMethodVisitor extends BaseUpdateMethodVisitor {
+
+  @override
+  Fragment get currentFragment => null;
+
   @override
   bool visitTemplate(Template template) {
     _emit(' @override\n');

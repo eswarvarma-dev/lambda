@@ -65,6 +65,11 @@ class FragmentUpdateMethodVisitor extends BaseUpdateMethodVisitor
     with RootTracker {
 
   @override
+  final Fragment currentFragment;
+
+  FragmentUpdateMethodVisitor(this.currentFragment);
+
+  @override
   bool visitFragment(Fragment node) {
     if (isRoot(node)) {
       _emit(' @override\n');

@@ -26,10 +26,14 @@ abstract class FragmentController<I, F extends Function> {
   final F fragmentFactory;
   final _fragments = <ViewNode>[];
   Node placeholder;
+  dynamic context;
 
   FragmentController(this.fragmentFactory);
 
   List<ViewNode> get fragments => _fragments;
+
+  /// Called during change detection.
+  void render(I input);
 
   void updateFragments() {
     for (int i = 0; i < _fragments.length; i++) {
@@ -75,9 +79,6 @@ abstract class FragmentController<I, F extends Function> {
     }
     assert(this._fragments.isEmpty);
   }
-
-  /// Called during change detection.
-  void render(I input);
 }
 
 abstract class ViewNode<C> {
@@ -134,9 +135,11 @@ abstract class ViewNodeBuilder<C> extends ViewNode<C> {
     _subscriptions.clear();
   }
 
-  void beginHost(String tag) {
+  void beginHost(String tag, context) {
     assert(_buildStack.isEmpty);
     assert(_buildStackPointer == 0);
+    assert(context != null);
+    this.context = context;
     hostElement = new Element.tag(tag);
     _buildStackPointer++;
     _buildStack[_buildStackPointer] = hostElement;
@@ -164,10 +167,11 @@ abstract class ViewNodeBuilder<C> extends ViewNode<C> {
     return childHostElement;
   }
 
-  Node addFragmentPlaceholder(FragmentController fc) {
+  Node addFragmentController(FragmentController fc) {
     Comment placeholder = new Comment();
     _appendNode(placeholder);
     fc.placeholder = placeholder;
+    fc.context = this.context;
     return placeholder;
   }
 

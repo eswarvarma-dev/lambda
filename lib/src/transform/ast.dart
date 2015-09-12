@@ -129,8 +129,7 @@ class ComponentElement extends Element {
 
 class Fragment extends AstNodeWithChildren {
   String type;
-  String inputExpression;
-  String inputValueField;
+  Expression inputExpression;
   final outVars = <String>[];
   final childNodes = <AstNode>[];
 
@@ -165,7 +164,7 @@ class Attribute extends DataNode {
 
 class Prop extends DataNode {
   String property;
-  String expression;
+  Expression expression;
   String valueField;
 
   @override
@@ -182,7 +181,7 @@ class Event extends DataNode {
 }
 
 class TextInterpolation extends AstNode {
-  String expression;
+  Expression expression;
   /// Field that references to the text node.
   String nodeField;
   /// Field that references the last seen string value.
@@ -197,4 +196,23 @@ class PlainText extends AstNode {
 
   @override
   String toString() => text;
+}
+
+class Expression {
+  /// Whether the expression is evaluated within the context of `this`.
+  /// Currently such expression must begin with `this.`, e.g. `this.foo.bar`.
+  bool isThis = false;
+
+  /// Terms participating in a dot call chain expression, e.g. in `foo.bar.baz`
+  /// the terms are `foo`, `bar` and `baz`.
+  final terms = <String>[];
+
+  String _thisPrefix() => !isThis
+    ? ''
+    : terms.isEmpty
+      ? 'this'
+      : 'this.';
+
+  @override
+  String toString() => '${_thisPrefix()}${terms.join('.')}';
 }

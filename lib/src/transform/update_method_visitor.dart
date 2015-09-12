@@ -4,6 +4,11 @@ part of lambda.compiler;
 abstract class BaseUpdateMethodVisitor extends AstVisitor {
   final _buf = new StringBuffer();
 
+  /// Sub-classes must implement this getter and return the template fragment
+  /// for who the update method is being generated, or `null` if we at the
+  /// root template level.
+  Fragment get currentFragment;
+
   String get code => _buf.toString();
 
   @override
@@ -24,7 +29,7 @@ abstract class BaseUpdateMethodVisitor extends AstVisitor {
     elem.attributesAndProps
       .where((n) => n is Prop)
       .forEach((Prop p) {
-        _emit(' _tmp = context.${p.expression};');
+        _emit(' _tmp = ${_resolveExpression(p.expression)};');
         _emit(' if (!identical(_tmp, ${elem.nodeField})) {');
         _emit('   ${elem.nodeField}.${p.property} = ${p.valueField} = _tmp;');
         _emit(' }');
@@ -33,7 +38,7 @@ abstract class BaseUpdateMethodVisitor extends AstVisitor {
 
   @override
   bool visitTextInterpolation(TextInterpolation ti) {
-    _emit(' _tmp = \'\${context.${ti.expression}}\';');
+    _emit(' _tmp = \'\${${_resolveExpression(ti.expression)}}\';');
     _emit(' if (!identical(_tmp, ${ti.valueField})) {');
     _emit('   ${ti.nodeField}.text = ${ti.valueField} = _tmp;');
     _emit(' }');
@@ -42,14 +47,23 @@ abstract class BaseUpdateMethodVisitor extends AstVisitor {
 
   @override
   bool visitFragment(Fragment f) {
-    _emit(' _tmp = context.${f.inputExpression};');
-    _emit(' ${f.fragmentField}.render(${f.inputValueField} = _tmp);');
-    _emit(' ${f.fragmentField}.updateFragments();');
+    _emit(' ${f.fragmentField}.render(${_resolveExpression(f.inputExpression)});');
     return true;
   }
 
   void _emit(Object o) {
     _buf.write(o);
+  }
+
+  /// TODO: it should be binder's job to resolve expressions
+  String _resolveExpression(Expression expr) {
+    final terms = expr.terms.join('.');
+    if (expr.isThis || currentFragment == null) {
+      // Expression starts with `this` or we're at the root level.
+      return 'context.${terms}';
+    } else {
+      return terms;
+    }
   }
 }
 

@@ -38,7 +38,7 @@ main() {
 
       parserTest('text interpolation', '{{foo.bar}}', (Template tmpl) {
         TextInterpolation txti = tmpl.children.single;
-        expect(txti.expression, 'foo.bar');
+        expectExpression(txti.expression, 'foo.bar');
       });
     });
 
@@ -57,25 +57,25 @@ main() {
 
       parserTest('text interpolation + plain text', '{{a}}b', (Template tmpl) {
         expect(tmpl.children, hasLength(2));
-        expect((tmpl.children[0] as TextInterpolation).expression, 'a');
+        expectExpression((tmpl.children[0] as TextInterpolation).expression, 'a');
         expect((tmpl.children[1] as PlainText).text, 'b');
       });
 
       parserTest('plain text + text interpolation', 'a{{b}}', (Template tmpl) {
         expect(tmpl.children, hasLength(2));
         expect((tmpl.children[0] as PlainText).text, 'a');
-        expect((tmpl.children[1] as TextInterpolation).expression, 'b');
+        expectExpression((tmpl.children[1] as TextInterpolation).expression, 'b');
       });
 
       parserTest('element + text interpolation', '<a/>{{b}}', (Template tmpl) {
         expect(tmpl.children, hasLength(2));
         expect((tmpl.children[0] as HtmlElement).tag, 'a');
-        expect((tmpl.children[1] as TextInterpolation).expression, 'b');
+        expectExpression((tmpl.children[1] as TextInterpolation).expression, 'b');
       });
 
       parserTest('text interpolation + element', '{{a}}<b/>', (Template tmpl) {
         expect(tmpl.children, hasLength(2));
-        expect((tmpl.children[0] as TextInterpolation).expression, 'a');
+        expectExpression((tmpl.children[0] as TextInterpolation).expression, 'a');
         expect((tmpl.children[1] as HtmlElement).tag, 'b');
       });
 
@@ -83,7 +83,7 @@ main() {
         expect(tmpl.children, hasLength(5));
         expect((tmpl.children[0] as HtmlElement).tag, 'div');
         expect((tmpl.children[1] as PlainText).text, 'a');
-        expect((tmpl.children[2] as TextInterpolation).expression, 'b');
+        expectExpression((tmpl.children[2] as TextInterpolation).expression, 'b');
         expect((tmpl.children[3] as PlainText).text, 'c');
         expect((tmpl.children[4] as HtmlElement).tag, 'div');
       });
@@ -101,7 +101,7 @@ main() {
         HtmlElement elem = tmpl.children[0];
         expect(elem.tag, 'a');
         expect((elem.children[0] as HtmlElement).tag, 'b');
-        expect((elem.children[1] as TextInterpolation).expression, 'c');
+        expectExpression((elem.children[1] as TextInterpolation).expression, 'c');
         expect((elem.children[2] as ComponentElement).type, 'D');
       });
     });
@@ -139,7 +139,7 @@ main() {
         expect(props, hasLength(1));
         Prop prop = props[0];
         expect(prop.property, 'a');
-        expect(prop.expression, 'b');
+        expectExpression(prop.expression, 'b');
       });
 
       parserTest('many', '<div [a]="b" [c]=\'d\' />', (Template tmpl) {
@@ -148,11 +148,11 @@ main() {
 
         Prop prop = props[0];
         expect(prop.property, 'a');
-        expect(prop.expression, 'b');
+        expectExpression(prop.expression, 'b');
 
         prop = props[1];
         expect(prop.property, 'c');
-        expect(prop.expression, 'd');
+        expectExpression(prop.expression, 'd');
       });
     });
 
@@ -175,7 +175,7 @@ main() {
 
         Prop prop = props[1];
         expect(prop.property, 'c');
-        expect(prop.expression, 'd');
+        expectExpression(prop.expression, 'd');
 
         Event event = props[2];
         expect(event.type, 'e');
@@ -183,7 +183,7 @@ main() {
 
         prop = props[3];
         expect(prop.property, 'g');
-        expect(prop.expression, 'h');
+        expectExpression(prop.expression, 'h');
       });
     });
 
@@ -192,7 +192,7 @@ main() {
         Fragment frag = tmpl.children.single;
         expect(frag, isNotNull);
         expect(frag.type, 'If');
-        expect(frag.inputExpression, 'condition');
+        expectExpression(frag.inputExpression, 'condition');
         expect(frag.outVars, isEmpty);
         expect(frag.childNodes, hasLength(1));
         expect(frag.children, hasLength(1));
@@ -213,7 +213,7 @@ main() {
           '<% For (items -> item) %><% /For %>',
           (Template tmpl) {
         Fragment frag = tmpl.children.single;
-        expect(frag.inputExpression, 'items');
+        expectExpression(frag.inputExpression, 'items');
         expect(frag.outVars, ['item']);
       });
     });
@@ -240,4 +240,8 @@ parserTest(String description, String source, testFn(Template tmpl)) {
   test('should parse ${description}', () {
     testFn(parse(source));
   });
+}
+
+expectExpression(Expression expr, String exprString) {
+  expect(expr.toString(), exprString);
 }

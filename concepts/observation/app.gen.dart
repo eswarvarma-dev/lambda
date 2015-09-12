@@ -74,7 +74,7 @@ class Menu$View extends ViewNodeBuilder<Menu> {
 
     beginHost('menu');
       beginElement('ul');
-        addFragmentPlaceholder(_fragmentController0);
+        addFragmentController(_fragmentController0);
       endElement();
     endHost();
   }

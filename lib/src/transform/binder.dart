@@ -42,7 +42,6 @@ abstract class BaseBinder extends AstVisitor {
   @override
   bool visitFragment(Fragment f) {
     f.fragmentField = '_fragment${_idx}';
-    f.inputValueField = '_fragmentInputValue${_idx}';
     // because fragment class is top-level like all Dart classes, we need to
     // prefix it with parent class name to avoid name collisions
     f.generatedClassName = '${_viewClassName}\$Fragment\$${_idx}';

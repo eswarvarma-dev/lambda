@@ -53,7 +53,10 @@ abstract class BaseBuildMethodVisitor extends AstVisitor {
 
   @override
   bool visitPlainText(PlainText ptxt) {
-    _emit(" addText('''${ptxt.text}''');");
+    final cleanText = ptxt.text.trim();
+    if (cleanText.isNotEmpty) {
+      _emit(" addText('''${ptxt.text}''');");
+    }
     return false;
   }
 
@@ -65,7 +68,7 @@ abstract class BaseBuildMethodVisitor extends AstVisitor {
 
   @override
   bool visitFragment(Fragment f) {
-    _emit(' addFragmentPlaceholder(${f.fragmentField} =');
+    _emit(' addFragmentController(${f.fragmentField} =');
     _emit(' ${f.generatedClassName}.create());');
     return true;
   }

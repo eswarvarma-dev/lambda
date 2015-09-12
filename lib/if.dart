@@ -15,12 +15,15 @@ class If extends FragmentController<bool, IfFragmentFactory> {
     assert(condition != null);
     if (condition != _lastCondition) {
       if (condition) {
-        ViewNode fragment = fragmentFactory()..build();
+        ViewNode fragment = fragmentFactory()
+          ..context = context
+          ..build();
         this.insert(0, fragment);
       } else {
         this.remove(0);
       }
       _lastCondition = condition;
     }
+    updateFragments();
   }
 }

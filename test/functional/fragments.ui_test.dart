@@ -15,7 +15,13 @@ class IfFragment {
   bool visible = false;
 }
 
-@View('<div><% For(items -> item) %><span/><% /For %></div>')
+@View('''
+<div>
+  <% For(items -> item) %>
+    <span>{{item}}</span>
+  <% /For %>
+</div>
+''')
 class ForFragment {
   static ViewNode viewFactory() => null;
 
@@ -69,12 +75,12 @@ main() {
       ForFragment ctrl = view.context;
       view.update();
       expect(view.hostElement.outerHtml,
-          '<for-fragment><div><span></span><!----></div></for-fragment>');
+          '<for-fragment><div><span>1</span><!----></div></for-fragment>');
 
       ctrl.items.add(2);
       view.update();
       expect(view.hostElement.outerHtml,
-          '<for-fragment><div><span></span><span></span><!----></div></for-fragment>');
+          '<for-fragment><div><span>1</span><span>2</span><!----></div></for-fragment>');
 
       ctrl.items.clear();
       view.update();

@@ -73,7 +73,7 @@ class FragmentCompiler {
     final binder = new FragmentBinder(_fragment.generatedClassName);
     final fieldGenerator = new FragmentFieldGeneratorVisitor();
     final buildMethod = new FragmentBuildMethodVisitor();
-    final updateMethod = new FragmentUpdateMethodVisitor();
+    final updateMethod = new FragmentUpdateMethodVisitor(_fragment);
     _fragment
       ..accept(binder)
       ..accept(fieldGenerator)
