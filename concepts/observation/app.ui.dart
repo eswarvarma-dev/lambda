@@ -60,7 +60,7 @@ class Table {
 // Decorators: control element properties
 @View('''
 <div>
-  @Material(theme: currentTheme)
+  {# Material(theme: currentTheme) #}
   <input type="text">
 </div>
 ''')

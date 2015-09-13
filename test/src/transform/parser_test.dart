@@ -217,6 +217,17 @@ main() {
         expect(frag.outVars, ['item']);
       });
     });
+
+    group('decorator', () {
+      parserTest(
+        'simple',
+        '{# Decor #}',
+        (Template tmpl) {
+          Decorator decor = tmpl.children.single;
+          expect(decor.type, 'Decor');
+        }
+      );
+    });
   });
 
   group('highlightLocation_', () {

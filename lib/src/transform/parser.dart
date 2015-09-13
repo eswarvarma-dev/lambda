@@ -52,6 +52,7 @@ class LambdaTemplateGrammarDefinition extends GrammarDefinition {
       ref(htmlElement)
     | ref(componentElement)
     | ref(fragment)
+    | ref(decorator)
     | ref(textInterpolation)
     | ref(plainText)
     | ref(space)
@@ -170,6 +171,18 @@ class LambdaTemplateGrammarDefinition extends GrammarDefinition {
     });
 
   fragment() =>
+    string('{#')
+    .seq(ref(space).optional())
+    .seq(ref(dartClassName))
+    .seq(ref(space).optional())
+    // TODO: props
+    .seq(string('#}'))
+    .map((List tokens) {
+      return new Decorator()
+        ..type = tokens[2];
+    });
+
+  decorator() =>
     string('{%')
     .seq(ref(space).optional())
     .seq(ref(dartClassName))
@@ -258,7 +271,8 @@ class PlainTextParser extends Parser {
       final nextPos = currPos + 1;
       if (currChar == '{' && nextPos < context.buffer.length) {
         final nextChar = context.buffer[nextPos];
-        if (nextChar == '{' || nextChar == '%') {
+        if (nextChar == '{' || nextChar == '%' || nextChar == '#') {
+          // Bumped into text interpolation, fragment or decorator
           return done();
         }
       }

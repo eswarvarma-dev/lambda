@@ -149,6 +149,14 @@ class Fragment extends AstNodeWithChildren {
     '{% /${type} %}';
 }
 
+class Decorator extends AstNode {
+  String type;
+
+  @override
+  String toString() =>
+    '{# ${type} #}';
+}
+
 /// Superclass for all types of nodes that deal with passing data.
 abstract class DataNode extends AstNode {}
 
