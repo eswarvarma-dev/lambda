@@ -7,9 +7,17 @@ import 'package:lambda/lambda.dart';
 
 @LambdaUi()
 
+class RedDec extends Decorator {
+  RedDec(Element target) : super(target) {
+    target.style.setProperty('color', 'red');
+  }
+}
+
 @View('''
 <div class="greeting">
-  {{greeting}} <span> world</span>!
+  {{greeting}}
+  {# RedDec #}
+  <span> world</span>!
 </div>
 <button class="changeButton" (click)="changeGreeting">
   change greeting

@@ -36,7 +36,7 @@ main() {
     test('should build', () {
       view.build();
       expect(view.hostElement.outerHtml,
-          '<primitive-component><div>hello</div></primitive-component>');
+          '<primitive-component><div id="greeting">hello</div></primitive-component>');
     });
 
     test('should update', () {

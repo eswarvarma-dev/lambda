@@ -25,15 +25,20 @@ abstract class BaseUpdateMethodVisitor extends AstVisitor {
     return false;
   }
 
-  void _emitPropChangeDetection(Element elem) {
-    elem.attributesAndProps
-      .where((n) => n is Prop)
-      .forEach((Prop p) {
-        _emit(' _tmp = ${_resolveExpression(p.expression)};');
-        _emit(' if (!identical(_tmp, ${elem.nodeField})) {');
-        _emit('   ${elem.nodeField}.${p.property} = ${p.valueField} = _tmp;');
-        _emit(' }');
-      });
+  @override
+  bool visitDecorator(Decorator d) {
+    _emitPropChangeDetection(d);
+    return false;
+  }
+
+  void _emitPropChangeDetection(HasProps withProps) {
+    withProps.props.forEach((Prop p) {
+      _emit(' _tmp = ${_resolveExpression(p.expression)};');
+      _emit(' if (!identical(_tmp, ${p.valueField})) {');
+      _emit('   ${withProps.targetObjectField}.${p.property} =');
+      _emit('     ${p.valueField} = _tmp;');
+      _emit(' }');
+    });
   }
 
   @override

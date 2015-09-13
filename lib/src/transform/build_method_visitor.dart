@@ -3,6 +3,7 @@ part of lambda.compiler;
 /// Generates code for the `build` method.
 abstract class BaseBuildMethodVisitor extends AstVisitor {
   final _buf = new StringBuffer();
+  List<Decorator> _pendingDecorators = <Decorator>[];
 
   String get code => _buf.toString();
 
@@ -15,16 +16,21 @@ abstract class BaseBuildMethodVisitor extends AstVisitor {
     }
     // If we're listening to events on this element, store the element reference
     // in a local variable in order to create subscriptions.
-    else if (hasEvents) {
+    else if (hasEvents || _pendingDecorators.isNotEmpty) {
       _emit(' Element ${elem.nodeField} = ');
     }
-    _emit(" beginElement('${tag}'");
+    _emit(" beginElement('${tag}');");
     _emitAttributes(elem);
-    _emit(' );');
     if (hasEvents) {
       elem.attributesAndProps.where((n) => n is Event).forEach((Event e) {
         _emitSubscription(elem.nodeField, e);
       });
+    }
+    if (_pendingDecorators.isNotEmpty) {
+      _pendingDecorators.forEach((Decorator d) {
+        _emit(' ${d.decoratorField} = new ${d.type}(${elem.nodeField});');
+      });
+      _pendingDecorators = <Decorator>[];
     }
     return false;
   }
@@ -32,9 +38,8 @@ abstract class BaseBuildMethodVisitor extends AstVisitor {
   @override
   bool visitComponentElement(ComponentElement elem) {
     final tag = elem.type;
-    _emit(' ${elem.nodeField} = beginChild(${tag}.viewFactory()');
+    _emit(' ${elem.nodeField} = beginChild(${tag}.viewFactory());');
     _emitAttributes(elem);
-    _emit(' );');
     bool hasEvents = elem.attributesAndProps.any((p) => p is Event);
     if (hasEvents) {
       elem.attributesAndProps.where((n) => n is Event).forEach((Event e) {
@@ -73,15 +78,10 @@ abstract class BaseBuildMethodVisitor extends AstVisitor {
     return true;
   }
 
-  void _emitAttributes(Element elem) {
-    var attrs = elem.attributesAndProps.where((n) => n is Attribute);
-    if (attrs.isNotEmpty) {
-      _emit(' , attrs: const {');
-      attrs.forEach((Attribute attr) {
-        _emit(" '''${attr.name}''': '''${attr.value}'''");
-      });
-      _emit(' }');
-    }
+  @override
+  bool visitDecorator(Decorator d) {
+    _pendingDecorators.add(d);
+    return false;
   }
 
   @override
@@ -89,6 +89,14 @@ abstract class BaseBuildMethodVisitor extends AstVisitor {
     if (node is Element) {
       _emit(' endElement();');
     }
+  }
+
+  void _emitAttributes(Element elem) {
+    elem.attributesAndProps
+      .where((n) => n is Attribute)
+      .forEach((Attribute attr) {
+        _emit(" setAttribute('''${attr.name}''', '''${attr.value}''');");
+      });
   }
 
   void _emit(Object o) {

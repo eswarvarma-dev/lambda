@@ -49,4 +49,10 @@ abstract class BaseBinder extends AstVisitor {
     fragments.add(f);
     return true;
   }
+
+  @override
+  bool visitDecorator(Decorator d) {
+    d.decoratorField = '_decorator${_idx++}';
+    return false;
+  }
 }

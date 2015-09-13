@@ -29,6 +29,13 @@ class View {
   const View(this.code);
 }
 
+/// A decorator is applied to an element (target) and it can alter the
+/// element's properties according to whatever props are passed to it.
+abstract class Decorator {
+  final Element target;
+  Decorator(this.target);
+}
+
 /// Used within the `{% ... %}` template blocks. Controls the creation of
 /// fragments of templates enclosed within the fragment block by converting
 /// an input value into a [List] of items, each corresponding to an instance
@@ -162,7 +169,7 @@ abstract class ViewNodeBuilder<C> extends ViewNode<C> {
     _buildStackPointer = -1;
   }
 
-  Element beginElement(String tag, {Map<String, String> attrs}) {
+  Element beginElement(String tag) {
     Element element = new Element.tag(tag);
     _appendNode(element);
     _buildStackPointer++;
@@ -184,6 +191,14 @@ abstract class ViewNodeBuilder<C> extends ViewNode<C> {
     fc.placeholder = placeholder;
     fc.context = this.context;
     return placeholder;
+  }
+
+  void setAttribute(String name, String value) {
+    // TODO: instead of maintaining build stack, just hold on to the current
+    // element being built. Looks like we don't need full breadcrumb trail.
+    // Fewer array lookups this way.
+    Element element = _buildStack[_buildStackPointer];
+    element.setAttribute(name, value);
   }
 
   void addClass(String className) {

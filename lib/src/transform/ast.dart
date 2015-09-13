@@ -31,6 +31,7 @@ abstract class AstVisitor {
   bool visitAttribute(Attribute node) { return false; }
   bool visitEvent(Event node) { return false; }
   bool visitFragment(Fragment node) { return false; }
+  bool visitDecorator(Decorator node) { return false; }
 
   /// Called immediately after having visited a node and all its children.
   /// Useful for context clean-up and outputting closing tags. This method is
@@ -59,6 +60,8 @@ abstract class AstNode {
         return visitor.visitEvent(this);
       case Fragment:
         return visitor.visitFragment(this);
+      case Decorator:
+        return visitor.visitDecorator(this);
       default:
         throw new StateError('Unknown node type: ${this.runtimeType}');
     }
@@ -89,7 +92,7 @@ class Template extends AstNodeWithChildren {
   String toString() => children.join();
 }
 
-abstract class Element extends AstNodeWithChildren {
+abstract class Element extends AstNodeWithChildren implements HasProps {
   /// Ordered list of attributes and props
   final attributesAndProps = <DataNode>[];
   final childNodes = <AstNode>[];
@@ -98,9 +101,14 @@ abstract class Element extends AstNodeWithChildren {
   /// built, such as property binding.
   String nodeField;
 
+  @override
+  String get targetObjectField => nodeField;
+
   List<AstNode> get children =>
       new List<AstNode>.from(attributesAndProps)
         ..addAll(childNodes);
+
+  List<Prop> get props => attributesAndProps.where((p) => p is Prop).toList();
 
   String _stringify(String tag) =>
     '<${tag}${_stringifyAttributesAndProps()}>'
@@ -110,6 +118,13 @@ abstract class Element extends AstNodeWithChildren {
   String _stringifyAttributesAndProps() => attributesAndProps.isEmpty
     ? ''
     : attributesAndProps.map((attrOrProp) => ' ${attrOrProp}').join();
+}
+
+abstract class HasProps {
+  List<Prop> get props;
+
+  /// The field referncing the object that's the target for setting the props.
+  String get targetObjectField;
 }
 
 class HtmlElement extends Element {
@@ -149,9 +164,16 @@ class Fragment extends AstNodeWithChildren {
     '{% /${type} %}';
 }
 
-class Decorator extends AstNode {
+class Decorator extends AstNodeWithChildren implements HasProps {
   String type;
   List<Prop> props;
+  String decoratorField;
+
+  @override
+  String get targetObjectField => decoratorField;
+
+  @override
+  List<AstNode> get children => props;
 
   @override
   String toString() =>

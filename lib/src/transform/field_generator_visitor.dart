@@ -40,6 +40,12 @@ abstract class BaseFieldGeneratorVisitor extends AstVisitor {
     return true;
   }
 
+  @override
+  bool visitDecorator(Decorator d) {
+    _emit(' ${d.type} ${d.decoratorField};');
+    return false;
+  }
+
   void _emit(Object o) {
     _buf.write(o);
   }
