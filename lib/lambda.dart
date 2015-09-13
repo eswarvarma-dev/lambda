@@ -29,7 +29,7 @@ class View {
   const View(this.code);
 }
 
-/// Used within the `<% ... %>` template blocks. Controls the creation of
+/// Used within the `{% ... %}` template blocks. Controls the creation of
 /// fragments of templates enclosed within the fragment block by converting
 /// an input value into a [List] of items, each corresponding to an instance
 /// of a template fragment.

@@ -144,9 +144,9 @@ class Fragment extends AstNodeWithChildren {
 
   @override
   String toString() =>
-    '<% ${type} (${inputExpression}${_stringifyOutVars()}) %>'
+    '{% ${type} (${inputExpression}${_stringifyOutVars()}) %}'
     '${childNodes.join()}'
-    '<% /${type} %>';
+    '{% /${type} %}';
 }
 
 /// Superclass for all types of nodes that deal with passing data.

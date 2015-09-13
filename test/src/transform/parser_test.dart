@@ -188,7 +188,7 @@ main() {
     });
 
     group('fragment controller', () {
-      parserTest('simple', '<% If (condition) %><div/><% /If %>', (Template tmpl) {
+      parserTest('simple', '{% If (condition) %}<div/>{% /If %}', (Template tmpl) {
         Fragment frag = tmpl.children.single;
         expect(frag, isNotNull);
         expect(frag.type, 'If');
@@ -200,17 +200,17 @@ main() {
 
       test('should validate closing tags', () {
         try {
-          parse('<% If (condition) %><div/><% /Fi %>');
+          parse('{% If (condition) %}<div/>{% /Fi %}');
           fail('should have thrown');
         } catch (e) {
-          expect(e, 'Closing fragment <% /Fi %> does not match'
-              ' opening fragment <% If %>.');
+          expect(e, 'Closing fragment {% /Fi %} does not match'
+              ' opening fragment {% If %}.');
         }
       });
 
       parserTest(
           'output variable',
-          '<% For (items -> item) %><% /For %>',
+          '{% For (items -> item) %}{% /For %}',
           (Template tmpl) {
         Fragment frag = tmpl.children.single;
         expectExpression(frag.inputExpression, 'items');

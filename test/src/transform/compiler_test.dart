@@ -120,7 +120,7 @@ main() {
 
     compileTest(
       'fragment',
-      '<% For (items -> item) %><div/><% /For %>',
+      '{% For (items -> item) %}<div/>{% /For %}',
       """
       addFragmentController(_fragment0 = Foo\$View\$Fragment\$0.create());
       """

@@ -170,7 +170,7 @@ class LambdaTemplateGrammarDefinition extends GrammarDefinition {
     });
 
   fragment() =>
-    string('<%')
+    string('{%')
     .seq(ref(space).optional())
     .seq(ref(dartClassName))
     .seq(ref(space).optional())
@@ -179,20 +179,20 @@ class LambdaTemplateGrammarDefinition extends GrammarDefinition {
     .seq(ref(fragmentOutputVariables).optional())
     .seq(char(')'))
     .seq(ref(space).optional())
-    .seq(string('%>'))
+    .seq(string('%}'))
     .seq(ref(content))
-    .seq(string('<%'))
+    .seq(string('{%'))
     .seq(ref(space).optional())
     .seq(char('/'))
     .seq(ref(dartClassName))
     .seq(ref(space).optional())
-    .seq(string('%>'))
+    .seq(string('%}'))
     .map((List tokens) {
       String openType = tokens[2];
       String closeType = tokens[14];
       if (openType != closeType) {
-        throw 'Closing fragment <% /${closeType} %> does not match '
-          'opening fragment <% ${openType} %>.';
+        throw 'Closing fragment {% /${closeType} %} does not match '
+          'opening fragment {% ${openType} %}.';
       }
       final fragment = new Fragment()
         ..type = openType
@@ -226,8 +226,8 @@ class LambdaTemplateGrammarDefinition extends GrammarDefinition {
 
   plainText() => new PlainTextParser();
 
-  plainTextCharacter() =>
-      predicate(1, (input) => input != '<', 'illegal plain text character');
+  plainTextCharacter() => predicate(1, (input) => input != '<' && input != '{',
+      'illegal plain text character');
 
   space() => whitespace().plus();
 }
@@ -258,7 +258,7 @@ class PlainTextParser extends Parser {
       final nextPos = currPos + 1;
       if (currChar == '{' && nextPos < context.buffer.length) {
         final nextChar = context.buffer[nextPos];
-        if (nextChar == '{') {
+        if (nextChar == '{' || nextChar == '%') {
           return done();
         }
       }

@@ -8,7 +8,7 @@ import 'package:test/test.dart';
 
 @LambdaUi(uses: const [If, For])
 
-@View('<div><% If(visible) %><span/><% /If %></div>')
+@View('<div>{% If(visible) %}<span/>{% /If %}</div>')
 class IfFragment {
   static ViewNode viewFactory() => null;
 
@@ -17,9 +17,9 @@ class IfFragment {
 
 @View('''
 <div>
-  <% For(items -> item) %>
+  {% For(items -> item) %}
     <span>{{item}}</span>
-  <% /For %>
+  {% /For %}
 </div>
 ''')
 class ForFragment {

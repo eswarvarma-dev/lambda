@@ -27,9 +27,9 @@ class Form {
 // Fragments: control UI structure
 @View('''
 <ul>
-  <% For (items -> item) %>
+  {% For (items -> item) %}
     <li>{{prefix}} - {{item}}</li>
-  <% /For %>
+  {% /For %}
 </ul>
 ''')
 class Menu {
@@ -40,14 +40,14 @@ class Menu {
 // Example: fragments can nest
 @View('''
 <table>
-  <% For (rows -> row) %>
+  {% For (rows -> row) %}
     <tr>
       <td>{{row['num']}}</td>
-      <% For (row['cols'] -> col) %>
+      {% For (row['cols'] -> col) %}
         <td>{{row['pref']}} - {{col}}</td>
-      <% /For %>
+      {% /For %}
     </tr>
-  <% /For %>
+  {% /For %}
 </table>
 ''')
 class Table {
