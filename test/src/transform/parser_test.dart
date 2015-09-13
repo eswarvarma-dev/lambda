@@ -115,7 +115,7 @@ main() {
         expect(attr.value, 'greeting');
       });
 
-      parserTest('many', '<div a="b" c=\'d\' e="f" />', (Template tmpl) {
+      parserTest('many', '<div a="b" c="d" e="f" />', (Template tmpl) {
         var attrs = tmpl.children.single.attributesAndProps;
         expect(attrs, hasLength(3));
 
@@ -142,7 +142,7 @@ main() {
         expectExpression(prop.expression, 'b');
       });
 
-      parserTest('many', '<div [a]="b" [c]=\'d\' />', (Template tmpl) {
+      parserTest('many', '<div [a]="b" [c]="d" />', (Template tmpl) {
         var props = tmpl.children.single.attributesAndProps;
         expect(props, hasLength(2));
 
@@ -221,10 +221,41 @@ main() {
     group('decorator', () {
       parserTest(
         'simple',
-        '{# Decor #}',
+        ['{# Decor #}', '{# Decor() #}'],
         (Template tmpl) {
           Decorator decor = tmpl.children.single;
           expect(decor.type, 'Decor');
+          expect(decor.props, isEmpty);
+        }
+      );
+
+      parserTest(
+        'prop',
+        '{# Decor(foo: bar) #}',
+        (Template tmpl) {
+          Decorator decor = tmpl.children.single;
+          expect(decor.type, 'Decor');
+          final props = decor.props;
+          expect(props, hasLength(1));
+          expect(props.single.property, 'foo');
+          expectExpression(props.single.expression, 'bar');
+        }
+      );
+
+      parserTest(
+        'props',
+        '{# Decor(foo: bar, baz: qux.quux) #}',
+        (Template tmpl) {
+          Decorator decor = tmpl.children.single;
+          expect(decor.type, 'Decor');
+          final props = decor.props;
+          expect(props, hasLength(2));
+
+          expect(props[0].property, 'foo');
+          expectExpression(props[0].expression, 'bar');
+
+          expect(props[1].property, 'baz');
+          expectExpression(props[1].expression, 'qux.quux');
         }
       );
     });
@@ -247,10 +278,16 @@ line3
   });
 }
 
-parserTest(String description, String source, testFn(Template tmpl)) {
-  test('should parse ${description}', () {
-    testFn(parse(source));
-  });
+parserTest(String description, dynamic sources, testFn(Template tmpl)) {
+  if (sources is String) {
+    sources = [sources];
+  }
+  assert(sources is Iterable);
+  for (String source in sources) {
+    test('should parse ${description}', () {
+      testFn(parse(source));
+    });
+  }
 }
 
 expectExpression(Expression expr, String exprString) {

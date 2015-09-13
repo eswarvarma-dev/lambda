@@ -151,6 +151,7 @@ class Fragment extends AstNodeWithChildren {
 
 class Decorator extends AstNode {
   String type;
+  List<Prop> props;
 
   @override
   String toString() =>

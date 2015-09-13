@@ -61,16 +61,15 @@ class LambdaTemplateGrammarDefinition extends GrammarDefinition {
   /// Parses text interpolation of the form `{{expression}}`.
   textInterpolation() =>
     string('{{')
-    .seq(pattern('a-z.A-Z').plus().flatten())  // TODO: accept more
+    .seq(ref(expression))  // TODO: accept more
     .seq(string('}}')).map((List tokens) {
       return new TextInterpolation()
-        ..expression = _parseExpression(tokens[1]);
+        ..expression = tokens[1];
     });
 
   /// Parses a template expression, currently only of the form `foo.bar.baz`.
   expression() =>
-    (pattern('a-zA-Z').plus())
-    .optional(char('.').seq((pattern('a-zA-Z').plus())))
+    ref(dartVariableName).separatedBy(char('.'))
     .flatten()
     .map(_parseExpression);
 
@@ -108,11 +107,13 @@ class LambdaTemplateGrammarDefinition extends GrammarDefinition {
     .seq(ref(space).optional())
     .seq(char('='))
     .seq(ref(space).optional())
-    .seq(ref(attributeValue))
+    .seq(char('"'))
+    .seq(ref(expression))
+    .seq(char('"'))
     .map((List tokens) {
       return new Prop()
         ..property = tokens[1]
-        ..expression = _parseExpression(tokens[6]);
+        ..expression = tokens[7];
     });
 
   event() =>
@@ -140,7 +141,6 @@ class LambdaTemplateGrammarDefinition extends GrammarDefinition {
     .seq(nameParser)
     .seq(ref(attributesAndProps))
     .seq(ref(space).optional())
-    // TODO: parse attributes & property bindings
     .seq(
       string('/>')  // self-closing element, e.g. <div/>
       .or(  // element with content
@@ -170,19 +170,44 @@ class LambdaTemplateGrammarDefinition extends GrammarDefinition {
       return [tokens[3]];
     });
 
-  fragment() =>
+  decorator() =>
     string('{#')
     .seq(ref(space).optional())
     .seq(ref(dartClassName))
     .seq(ref(space).optional())
-    // TODO: props
+    .seq(ref(decoratorProps).optional())
+    .seq(ref(space).optional())
     .seq(string('#}'))
     .map((List tokens) {
       return new Decorator()
-        ..type = tokens[2];
+        ..type = tokens[2]
+        ..props = tokens[4] == null
+          ? <Prop>[]
+          : tokens[4];
     });
 
-  decorator() =>
+  decoratorProps() =>
+    char('(')
+    .seq(ref(space).optional())
+    .seq(ref(decoratorProp).separatedBy(ref(separator(','))).optional())
+    .seq(ref(space).optional())
+    .seq(char(')'))
+    .map((List tokens) {
+      if (tokens[2] == null) return const <Prop>[];
+      return tokens[2].where((p) => p is Prop).toList();
+    });
+
+  decoratorProp() =>
+    ref(dartVariableName)
+    .seq(ref(separator(':')))
+    .seq(ref(expression))
+    .map((List tokens) {
+      return new Prop()
+        ..property = tokens[0]
+        ..expression = tokens[2];
+    });
+
+  fragment() =>
     string('{%')
     .seq(ref(space).optional())
     .seq(ref(dartClassName))
@@ -217,6 +242,8 @@ class LambdaTemplateGrammarDefinition extends GrammarDefinition {
       return fragment;
     });
 
+  plainText() => new PlainTextParser();
+
   // TODO: differentiate between html and component names:
   //   - html tag names may contain "-"
   //   - component names may contain "$" and other Dart identifier characters
@@ -237,7 +264,10 @@ class LambdaTemplateGrammarDefinition extends GrammarDefinition {
 
   identifierNameChar() => pattern('a-zA-Z');  // TODO: accept more
 
-  plainText() => new PlainTextParser();
+  separator(String separatorChar) => () =>
+    ref(space).optional()
+    .seq(char(separatorChar))
+    .seq(ref(space).optional());
 
   plainTextCharacter() => predicate(1, (input) => input != '<' && input != '{',
       'illegal plain text character');
