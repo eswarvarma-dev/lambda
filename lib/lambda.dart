@@ -45,6 +45,7 @@ abstract class FragmentController<I, F extends Function> {
   final _fragments = <ViewNode>[];
   Node placeholder;
   dynamic context;
+  ViewNode parentFragment;
 
   FragmentController(this.fragmentFactory);
 
@@ -65,8 +66,10 @@ abstract class FragmentController<I, F extends Function> {
   }
 
   void _insertNodes(int index, ViewNode f) {
+    f.parentFragment = parentFragment;
     Node anchor = placeholder;
     if (index < _fragments.length) {
+      // TODO: handle the case when first thing is another fragment
       anchor = _fragments[index].rootNodes.first;
     }
     final nodes = f.rootNodes;
@@ -103,6 +106,7 @@ abstract class ViewNode<C> {
   C context;
   Element hostElement;
   List<Node> _rootNodes;
+  ViewNode parentFragment;
 
   List<Node> get rootNodes => _rootNodes;
 
@@ -186,6 +190,7 @@ abstract class ViewNodeBuilder<C> extends ViewNode<C> {
   }
 
   Node addFragmentController(FragmentController fc) {
+    fc.parentFragment = this;
     Comment placeholder = new Comment();
     _appendNode(placeholder);
     fc.placeholder = placeholder;

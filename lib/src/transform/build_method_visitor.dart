@@ -59,6 +59,7 @@ abstract class BaseBuildMethodVisitor extends AstVisitor {
   @override
   bool visitPlainText(PlainText ptxt) {
     final cleanText = ptxt.text.trim();
+    // TODO: space between text interpolations must not be collapsed
     if (cleanText.isNotEmpty) {
       _emit(" addText('''${ptxt.text}''');");
     }

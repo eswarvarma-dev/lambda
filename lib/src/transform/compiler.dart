@@ -33,8 +33,8 @@ class TemplateCompiler {
       ..accept(buildMethod)
       ..accept(updateMethod);
 
-    for (int i = 0; i < binder.fragments.length; i++) {
-      final fragment = binder.fragments[i];
+    for (int i = 0; i < binder.directChildFragments.length; i++) {
+      final fragment = binder.directChildFragments[i];
       final fc = new FragmentCompiler(_controllerClassName, fragment);
       _emit(fc.compile());
     };
@@ -86,9 +86,10 @@ class FragmentCompiler {
     _emit(updateMethod.code);
     _emitFragmentFooter();
 
-    for (int i = 0; i < binder.fragments.length; i++) {
-      final fragment = binder.fragments[i];
-      final fc = new FragmentCompiler(_controllerClassName, fragment);
+    for (int i = 0; i < binder.directChildFragments.length; i++) {
+      final child = binder.directChildFragments[i];
+      child.parentFragment = _fragment;
+      final fc = new FragmentCompiler(_controllerClassName, child);
       _emit(fc.compile());
     };
 

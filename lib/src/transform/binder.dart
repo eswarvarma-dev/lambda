@@ -7,7 +7,7 @@ abstract class BaseBinder extends AstVisitor {
   int _idx = 0;
 
   /// Fragments that are direct children of the visited fragment
-  final fragments = <Fragment>[];
+  final directChildFragments = <Fragment>[];
 
   BaseBinder(this._viewClassName);
 
@@ -46,7 +46,7 @@ abstract class BaseBinder extends AstVisitor {
     // prefix it with parent class name to avoid name collisions
     f.generatedClassName = '${_viewClassName}\$Fragment\$${_idx}';
     _idx++;
-    fragments.add(f);
+    directChildFragments.add(f);
     return true;
   }
 

@@ -67,7 +67,20 @@ abstract class BaseUpdateMethodVisitor extends AstVisitor {
       // Expression starts with `this` or we're at the root level.
       return 'context.${terms}';
     } else {
-      return terms;
+      String firstTerm = expr.terms.first;
+      var lowestFragment = currentFragment;
+      int levelsUp = 0;
+      while(lowestFragment != null &&
+          !lowestFragment.outVars.contains(firstTerm)) {
+        lowestFragment = currentFragment.parentFragment;
+        levelsUp++;
+      }
+      if (lowestFragment == null) {
+        // Assume published by context
+        return terms;
+      } else {
+        return '${'parentFragment.' * levelsUp}${terms}';
+      }
     }
   }
 }

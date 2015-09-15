@@ -28,6 +28,33 @@ class ForFragment {
   final items = new TrackList.from([1]);
 }
 
+@View('''
+<table>
+  {% For(rows -> row) %}
+    <tr>
+      <th>{{row.id}}</th>
+      {% For(row.cells -> cell) %}
+        <td>{{row.id}}{{cell}}</td>
+      {% /For %}
+    </tr>
+  {% /For %}
+</table>
+''')
+class NestedFragments {
+  static ViewNode viewFactory() => null;
+
+  final rows = [
+    new Row(1, ['a', 'b']),
+    new Row(2, ['c', 'd']),
+  ];
+}
+
+class Row {
+  int id;
+  List<String> cells;
+  Row(this.id, this.cells);
+}
+
 main() {
   group('if fragment', () {
     ViewNode view;
@@ -86,6 +113,27 @@ main() {
       view.update();
       expect(view.hostElement.outerHtml,
           '<for-fragment><div><!----></div></for-fragment>');
+    });
+  });
+
+  group('nested fragments', () {
+    ViewNode view;
+
+    setUp(() {
+      view = NestedFragments.viewFactory();
+    });
+
+    test('should have access to local variables', () {
+      view.build();
+      view.update();
+      expect(view.hostElement.outerHtml,
+          '<nested-fragments>'
+            '<table>'
+              '<tr><th>1</th><td>1a</td><td>1b</td><!----></tr>'
+              '<tr><th>2</th><td>2c</td><td>2d</td><!----></tr>'
+              '<!---->'
+            '</table>'
+          '</nested-fragments>');
     });
   });
 }

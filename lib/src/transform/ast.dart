@@ -147,6 +147,7 @@ class Fragment extends AstNodeWithChildren {
   Expression inputExpression;
   final outVars = <String>[];
   final childNodes = <AstNode>[];
+  Fragment parentFragment;
 
   String generatedClassName;
   String fragmentField;
