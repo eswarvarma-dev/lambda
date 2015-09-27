@@ -131,6 +131,12 @@ main() {
         expect(attr.name, 'e');
         expect(attr.value, 'f');
       });
+
+      parserTest('no value', '<div autofocus />', (Template tmpl) {
+        Attribute attr = tmpl.children.single.attributesAndProps.single;
+        expect(attr.name, 'autofocus');
+        expect(attr.value, '');
+      });
     });
 
     group('property binding', () {

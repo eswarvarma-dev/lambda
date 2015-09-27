@@ -85,12 +85,16 @@ class LambdaTemplateGrammarDefinition extends GrammarDefinition {
 
   attribute() => ref(attributeName)
       .seq(ref(space).optional())
-      .seq(char('='))
+      .seq(ref(attributeValueAssignment).optional())
+      .map((List tokens) {
+        return new Attribute(tokens[0], tokens[2] ?? '');
+      });
+  attributeValueAssignment() =>
+      char('=')
       .seq(ref(space).optional())
       .seq(ref(attributeValue))
-      .map((List tokens) {
-        return new Attribute(tokens[0], tokens[4]);
-      });
+      .pick(2);
+
   attributeValue() =>
       ref(attributeValueDouble).or(ref(attributeValueSingle)).pick(1);
   attributeValueDouble() => char('"')
