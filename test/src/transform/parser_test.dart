@@ -12,16 +12,22 @@ main() {
         expect(ptxt.text, 'abc');
       });
 
-      parserTest('self-closing HTML element', '<div/>', (Template tmpl) {
-        HtmlElement elem = tmpl.children.single;
-        expect(elem.tag, 'div');
-        expect(elem.children, isEmpty);
-      });
+      group('HTML element', () {
+        [
+          'div', 'h1', 'a', 'hello-world'
+        ].forEach((String tag) {
+          parserTest('self-closing $tag', '<$tag/>', (Template tmpl) {
+            HtmlElement elem = tmpl.children.single;
+            expect(elem.tag, tag);
+            expect(elem.children, isEmpty);
+          });
 
-      parserTest('HTML element', '<div></div>', (Template tmpl) {
-        HtmlElement elem = tmpl.children.single;
-        expect(elem.tag, 'div');
-        expect(elem.children, isEmpty);
+          parserTest('$tag', '<$tag></$tag>', (Template tmpl) {
+            HtmlElement elem = tmpl.children.single;
+            expect(elem.tag, tag);
+            expect(elem.children, isEmpty);
+          });
+        });
       });
 
       parserTest('self-closing component element', '<Foo/>', (Template tmpl) {
@@ -137,6 +143,34 @@ main() {
         expect(attr.name, 'autofocus');
         expect(attr.value, '');
       });
+
+      parserTest(
+          'no value followed by other',
+          '<input autofocus disabled />'
+          '<input autofocus (click)="stmt" />'
+          '<input autofocus id="123" />'
+          '<input autofocus [hidden]="expr" />',
+          (Template tmpl) {
+            tmpl.children.forEach((child) {
+              Attribute attr = child.attributesAndProps[0];
+              expect(attr.name, 'autofocus');
+              expect(attr.value, '');
+            });
+          });
+
+      parserTest(
+          'no value preceded by other',
+          '<input disabled autofocus />'
+          '<input (click)="stmt" autofocus />'
+          '<input id="123" autofocus />'
+          '<input [hidden]="expr" autofocus />',
+          (Template tmpl) {
+            tmpl.children.forEach((child) {
+              Attribute attr = child.attributesAndProps[1];
+              expect(attr.name, 'autofocus');
+              expect(attr.value, '');
+            });
+          });
     });
 
     group('property binding', () {

@@ -63,7 +63,9 @@ abstract class BaseUpdateMethodVisitor extends AstVisitor {
   /// TODO: it should be binder's job to resolve expressions
   String _resolveExpression(Expression expr) {
     final terms = expr.terms.join('.');
-    if (expr.isThis || currentFragment == null) {
+    if (_isDartLiteral(expr)) {
+      return terms;
+    } else if (expr.isThis || currentFragment == null) {
       // Expression starts with `this` or we're at the root level.
       return 'context.${terms}';
     } else {
@@ -96,3 +98,22 @@ String snakeCase(String s) {
   }
   return buf.toString();
 }
+
+// TODO: this is super naive
+bool _isDartLiteral(Expression expr) {
+  if (expr.terms.length != 1) {
+    return false;
+  }
+  String term = expr.terms.single;
+
+  return
+      term == 'true' ||
+      term == 'false' ||
+      term == 'null' ||
+      // Is int?
+      int.parse(term, onError: _ignoreThis) != null ||
+      // Is double?
+      double.parse(term, _ignoreThis) != null;
+}
+
+_ignoreThis(_) => null;

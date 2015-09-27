@@ -83,17 +83,18 @@ class LambdaTemplateGrammarDefinition extends GrammarDefinition {
       ..type = name;
   });
 
-  attribute() => ref(attributeName)
-      .seq(ref(space).optional())
+  attribute() =>
+      ref(attributeName)
       .seq(ref(attributeValueAssignment).optional())
       .map((List tokens) {
-        return new Attribute(tokens[0], tokens[2] ?? '');
+        return new Attribute(tokens[0], tokens[1] ?? '');
       });
   attributeValueAssignment() =>
-      char('=')
-      .seq(ref(space).optional())
+      ref(whitespace).star()
+      .seq(char('='))
+      .seq(ref(whitespace).star())
       .seq(ref(attributeValue))
-      .pick(2);
+      .pick(3);
 
   attributeValue() =>
       ref(attributeValueDouble).or(ref(attributeValueSingle)).pick(1);
@@ -249,24 +250,25 @@ class LambdaTemplateGrammarDefinition extends GrammarDefinition {
   plainText() => new PlainTextParser();
 
   // TODO: differentiate between html and component names:
-  //   - html tag names may contain "-"
   //   - component names may contain "$" and other Dart identifier characters
-  htmlElementName() => pattern('a-z').seq(ref(identifierNameChar).star())
+  htmlElementName() => pattern('a-z').seq(ref(htmlIdentifierChar).star())
       .flatten();
 
-  attributeName() => pattern('a-z').seq(ref(identifierNameChar).star())
+  attributeName() => pattern('a-z').seq(ref(htmlIdentifierChar).star())
       .flatten();
 
   dartVariableName() => pattern('a-z').seq(ref(identifierNameChar).star())
       .flatten();
 
-  eventType() => pattern('a-z').seq(ref(identifierNameChar).star())
+  eventType() => pattern('a-z').seq(ref(htmlIdentifierChar).star())
       .flatten();
 
   dartClassName() => pattern('A-Z').seq(ref(identifierNameChar).star())
       .flatten();
 
-  identifierNameChar() => pattern('a-zA-Z');  // TODO: accept more
+  identifierNameChar() => pattern('a-zA-Z0-9');  // TODO: accept more
+
+  htmlIdentifierChar() => pattern('a-zA-Z0-9\\-');  // TODO: accept more
 
   separator(String separatorChar) => () =>
     ref(space).optional()
