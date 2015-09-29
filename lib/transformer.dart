@@ -1,6 +1,7 @@
 library lambda.transformer;
 
 import 'dart:async';
+import 'dart:io';
 import 'package:analyzer/analyzer.dart';
 import 'package:analyzer/src/generated/ast.dart';
 import 'package:analyzer/src/generated/java_core.dart';
@@ -12,7 +13,7 @@ import 'src/transform/compiler.dart';
 final _formatter = new DartFormatter();
 String _fmt(String code) => _formatter.format(code);
 
-class LambdaTransformer extends Transformer {
+class LambdaTransformer extends Transformer implements DeclaringTransformer {
   LambdaTransformer.asPlugin();
 
   static const _EXTENSION = '.ui.dart';
@@ -20,30 +21,54 @@ class LambdaTransformer extends Transformer {
 
   @override
   bool isPrimary(AssetId id) {
-    return id.path.endsWith(_EXTENSION) ||
-        id.path.endsWith(_TEST_EXTENSION);
+    return id.path.endsWith(_EXTENSION) || id.path.endsWith(_TEST_EXTENSION);
+  }
+
+  @override
+  void declareOutputs(DeclaringTransform transform) {
+    final info = new UiFileInfo(transform.primaryId);
+    transform.declareOutput(info._outputAssetId);
+    transform.declareOutput(info._assetId);
   }
 
   @override
   Future apply(Transform transform) async {
-    final code = await transform.primaryInput.readAsString();
-    final ast = parseCompilationUnit(code, parseFunctionBodies: true);
-    final asset = transform.primaryInput;
-    final directory = path.dirname(asset.id.path);
+    final info = new UiFileInfo(transform.primaryInput.id);
+    try {
+      final code = await transform.primaryInput.readAsString();
+      final ast = parseCompilationUnit(code, parseFunctionBodies: true);
+      final visitor = new _RewriterVisitor(info._genFileName);
+      ast.accept(visitor);
+      final formattedGenCode = _fmt(visitor.genCode);
+      final formattedUiCode = _fmt(visitor.uiCode);
+      transform
+          .addOutput(new Asset.fromString(info._outputAssetId, formattedGenCode));
+      transform.addOutput(new Asset.fromString(info._assetId, formattedUiCode));
+    } catch (e, s) {
+      stderr.writeln(
+        'Failed to transform and therefore skipping ${info._assetId}:\n'
+        'ERROR: $e\n'
+        'STACK TRACE: $s');
+    }
+  }
+}
+
+class UiFileInfo {
+  final AssetId _assetId;
+  String _inputDirectory;
+  String _baseFileName;
+  String _genFileName;
+  String _genPath;
+  AssetId _outputAssetId;
+
+  UiFileInfo(this._assetId) {
+    _inputDirectory = path.dirname(_assetId.path);
     // call basenameWithoutExtension because we use double-extension
-    final baseName = path
-        .basenameWithoutExtension(path.basenameWithoutExtension(asset.id.path));
-    final genFileName = '${baseName}.gen.dart';
-    final visitor = new _RewriterVisitor(genFileName);
-    ast.accept(visitor);
-    String genPath = transform.primaryInput.id.path;
-    genPath = path.join(directory, genFileName);
-    final genAssetId = new AssetId(transform.primaryInput.id.package, genPath);
-    final formattedGenCode = _fmt(visitor.genCode);
-    final formattedUiCode = _fmt(visitor.uiCode);
-    transform.addOutput(new Asset.fromString(genAssetId, formattedGenCode));
-    transform.addOutput(
-        new Asset.fromString(transform.primaryInput.id, formattedUiCode));
+    _baseFileName = path
+        .basenameWithoutExtension(path.basenameWithoutExtension(_assetId.path));
+    _genFileName = '${_baseFileName}.gen.dart';
+    _genPath = path.join(_inputDirectory, _genFileName);
+    _outputAssetId = new AssetId(_assetId.package, _genPath);
   }
 }
 
@@ -52,8 +77,10 @@ class _RewriterVisitor extends ToSourceVisitor {
   static final _evaluator = new ConstantEvaluator();
 
   final String _genFileName;
+
   /// Contains generated `.gen.dart` code.
   final _genCode = new StringBuffer();
+
   /// Contains rewritten `.ui.dart` code.
   final PrintStringWriter _uiCode;
 
@@ -95,7 +122,8 @@ class _RewriterVisitor extends ToSourceVisitor {
   @override
   AstNode visitClassDeclaration(ClassDeclaration node) {
     Annotation viewAnnotation = node.metadata.firstWhere(
-        (Annotation ann) => ann.name.name == 'View', orElse: () => null);
+        (Annotation ann) => ann.name.name == 'View',
+        orElse: () => null);
     if (viewAnnotation != null) {
       var template =
           viewAnnotation.arguments.arguments.single.accept(_evaluator);
