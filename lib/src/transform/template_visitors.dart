@@ -18,7 +18,6 @@ class TemplateBuildMethodVisitor extends BaseBuildMethodVisitor {
   bool visitTemplate(Template template) {
     _emit(' @override\n');
     _emit(' build() {');
-    _emit('   assert(ViewNodeBuilder.isStackEmpty);');
     _emit('   beginHost(\'${_hostElementName}\', new ${_controllerClassName}());');
     return false;
   }
@@ -32,7 +31,7 @@ class TemplateBuildMethodVisitor extends BaseBuildMethodVisitor {
   }
 
   void _emitBuildFooter() {
-    _emit(' endHost(); }');
+    _emit(' endBuild(); }');
   }
 }
 

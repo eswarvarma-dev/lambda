@@ -8,10 +8,18 @@ import 'zone.dart';
 
 ViewNode updateUiAutomatically(ViewNode viewFactory()) {
   final zone = new NgZone();
+  zone.overrideOnErrorHandler((err, StackTrace stackTrace) {
+    print('ERROR: $err\nSTACK:\n$stackTrace');
+  });
   return zone.run(() {
     final view = viewFactory();
     zone.overrideOnTurnDone(view.update);
-    return view..build();
+    try {
+      view.build();
+    } catch(e, s) {
+      print('ERROR: ${e}\nSTACK:\n${s}');
+    }
+    return view;
   });
 }
 
@@ -135,9 +143,8 @@ abstract class ViewNode<C> {
 /// A utility for building [ViewNode]s.
 abstract class ViewNodeBuilder<C> extends ViewNode<C> {
 
-  static final _buildStack = new List<Element>(100);
-  static int _buildStackPointer = -1;
-  static bool get isStackEmpty => _buildStackPointer == -1;
+  List _buildStack = <Element>[];
+  int _buildStackPointer = -1;
 
   List<StreamSubscription> _subscriptions;
 
@@ -159,34 +166,26 @@ abstract class ViewNodeBuilder<C> extends ViewNode<C> {
 
   void beginHost(String tag, context) {
     assert(_buildStack.isEmpty);
-    assert(_buildStackPointer == 0);
+    assert(_buildStackPointer == -1);
     assert(context != null);
     this.context = context;
     hostElement = new Element.tag(tag);
-    _buildStackPointer++;
-    _buildStack[_buildStackPointer] = hostElement;
-  }
-
-  void endHost() {
-    assert(_buildStackPointer == 0);
-    _buildStack.fillRange(0, 100);
-    _buildStackPointer = -1;
+    _pushNode(hostElement);
   }
 
   Element beginElement(String tag) {
     Element element = new Element.tag(tag);
     _appendNode(element);
-    _buildStackPointer++;
-    _buildStack[_buildStackPointer] = element;
+    _pushNode(element);
     return element;
   }
 
-  Element beginChild(ViewNode child) {
+  beginChild(ViewNode child) {
+    child.build();
     Element childHostElement = child.hostElement;
     _appendNode(childHostElement);
-    _buildStackPointer++;
-    _buildStack[_buildStackPointer] = childHostElement;
-    return childHostElement;
+    _pushNode(childHostElement);
+    return child.context;
   }
 
   Node addFragmentController(FragmentController fc) {
@@ -214,6 +213,11 @@ abstract class ViewNodeBuilder<C> extends ViewNode<C> {
     _buildStackPointer--;
   }
 
+  void endBuild() {
+    _buildStack = null;
+    _buildStackPointer = -1;
+  }
+
   Node addTextInterpolation() {
     Text textNode = new Text(' ');
     _appendNode(textNode);
@@ -227,11 +231,22 @@ abstract class ViewNodeBuilder<C> extends ViewNode<C> {
   }
 
   _appendNode(Node child) {
+    assert(child != null);
     if (_buildStackPointer == -1) {
       super.addRootNode(child);
     } else {
       Element parent = _buildStack[_buildStackPointer];
+      assert(parent != null);
       parent.append(child);
+    }
+  }
+
+  _pushNode(Node node) {
+    _buildStackPointer++;
+    if (_buildStackPointer < _buildStack.length) {
+      _buildStack[_buildStackPointer] = node;
+    } else {
+      _buildStack.add(node);
     }
   }
 }

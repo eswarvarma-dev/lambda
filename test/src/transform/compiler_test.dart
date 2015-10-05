@@ -18,11 +18,10 @@ main() {
         class Foo\$View extends ViewNodeBuilder<Foo> {
           @override
           build() {
-            assert(ViewNodeBuilder.isStackEmpty);
             beginHost(\'foo\', new Foo());
             beginElement(\'div\');
             endElement();
-            endHost();
+            endBuild();
           }
           @override
           void update() {
@@ -137,10 +136,9 @@ void compileTest(String description, String source, String expectation) {
     final fmtExpected = fmt('''
     @override
     build() {
-      assert(ViewNodeBuilder.isStackEmpty);
       beginHost('foo', new Foo());
       ${expectation.trim()}
-      endHost();
+      endBuild();
     }
     ''');
     final fmtActual = fmt(buildVisitor.code);

@@ -18,7 +18,7 @@ class Button$View extends ViewNodeBuilder<Button> {
         addClass('button');
         _boundNode1 = addTextInterpolation();
       endElement();
-    endHost();
+    endBuild();
   }
 
   @override
@@ -51,7 +51,7 @@ class Form$View extends ViewNodeBuilder<Form> {
     beginHost('form');
       beginChild(_child0);
       endElement();
-    endHost();
+    endBuild();
   }
 
   @override
@@ -76,7 +76,7 @@ class Menu$View extends ViewNodeBuilder<Menu> {
       beginElement('ul');
         addFragmentController(_fragmentController0);
       endElement();
-    endHost();
+    endBuild();
   }
 
   @override

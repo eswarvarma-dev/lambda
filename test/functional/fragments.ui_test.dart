@@ -43,15 +43,15 @@ class ForFragment {
 class NestedFragments {
   static ViewNode viewFactory() => null;
 
-  final rows = [
-    new Row(1, ['a', 'b']),
-    new Row(2, ['c', 'd']),
-  ];
+  final rows = new TrackList.from([
+    new Row(1, new TrackList.from(['a', 'b'])),
+    new Row(2, new TrackList.from(['c', 'd'])),
+  ]);
 }
 
 class Row {
   int id;
-  List<String> cells;
+  TrackList cells;
   Row(this.id, this.cells);
 }
 

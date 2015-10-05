@@ -72,7 +72,7 @@ abstract class ViewNodeBuilder<C> extends ViewNode<C> {
     _buildStack[_buildStackPointer] = hostElement;
   }
 
-  void endHost() {
+  void endBuild() {
     assert(_buildStackPointer == 0);
     _buildStack.clear();
     _buildStackPointer = -1;

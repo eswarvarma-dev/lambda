@@ -25,6 +25,16 @@ class WithProp {
   String id = 'id1';
 }
 
+@View('<Child />')
+class Parent {
+  static ViewNode viewFactory() => null;
+}
+
+@View('<div />')
+class Child {
+  static ViewNode viewFactory() => null;
+}
+
 main() {
   group('primitive component', () {
     ViewNode view;
@@ -93,6 +103,20 @@ main() {
       view.update();
       expect(view.hostElement.outerHtml,
           '<with-prop><div id="id2"></div></with-prop>');
+    });
+  });
+
+  group('nested components', () {
+    ViewNode<Parent> view;
+
+    setUp(() {
+      view = Parent.viewFactory();
+    });
+
+    test('should contain child', () {
+      view.build();
+      expect(view.hostElement.outerHtml,
+        '<parent><child><div></div></child></parent>');
     });
   });
 }
