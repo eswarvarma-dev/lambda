@@ -25,14 +25,18 @@ class WithProp {
   String id = 'id1';
 }
 
-@View('<Child />')
+@View('<Child [foo]="bar" />')
 class Parent {
   static ViewNode viewFactory() => null;
+
+  String bar = 'a';
 }
 
-@View('<div />')
+@View('<div>{{foo}}</div>')
 class Child {
   static ViewNode viewFactory() => null;
+
+  String foo;
 }
 
 main() {
@@ -116,7 +120,19 @@ main() {
     test('should contain child', () {
       view.build();
       expect(view.hostElement.outerHtml,
-        '<parent><child><div></div></child></parent>');
+        '<parent><child><div> </div></child></parent>');
+    });
+
+    test('should update child', () {
+      view.build();
+      view.update();
+      expect(view.hostElement.outerHtml,
+        '<parent><child><div>a</div></child></parent>');
+
+      view.context.bar = 'b';
+      view.update();
+      expect(view.hostElement.outerHtml,
+        '<parent><child><div>b</div></child></parent>');
     });
   });
 }

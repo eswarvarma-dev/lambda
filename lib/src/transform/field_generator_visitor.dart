@@ -17,7 +17,7 @@ abstract class BaseFieldGeneratorVisitor extends AstVisitor {
 
   @override
   bool visitComponentElement(ComponentElement elem) {
-    _emit(' ${elem.type} ${elem.nodeField};');
+    _emit(' ${elem.type}\$View ${elem.nodeField};');
     return false;
   }
 

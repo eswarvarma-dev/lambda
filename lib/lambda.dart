@@ -180,12 +180,12 @@ abstract class ViewNodeBuilder<C> extends ViewNode<C> {
     return element;
   }
 
-  beginChild(ViewNode child) {
+  ViewNode beginChild(ViewNode child) {
     child.build();
     Element childHostElement = child.hostElement;
     _appendNode(childHostElement);
     _pushNode(childHostElement);
-    return child.context;
+    return child;
   }
 
   Node addFragmentController(FragmentController fc) {

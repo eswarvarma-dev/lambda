@@ -14,28 +14,29 @@ abstract class BaseUpdateMethodVisitor extends AstVisitor {
   @override
   bool visitHtmlElement(HtmlElement elem) {
     if (elem.isBound) {
-      _emitPropChangeDetection(elem);
+      _emitPropChangeDetection(elem, elem.targetObjectField);
     }
     return false;
   }
 
   @override
   bool visitComponentElement(ComponentElement elem) {
-    _emitPropChangeDetection(elem);
+    _emitPropChangeDetection(elem, '${elem.targetObjectField}.context');
+    _emit(' ${elem.targetObjectField}.update();');
     return false;
   }
 
   @override
   bool visitDecorator(Decorator d) {
-    _emitPropChangeDetection(d);
+    _emitPropChangeDetection(d, d.targetObjectField);
     return false;
   }
 
-  void _emitPropChangeDetection(HasProps withProps) {
+  void _emitPropChangeDetection(HasProps withProps, String propContext) {
     withProps.props.forEach((Prop p) {
       _emit(' _tmp = ${_resolveExpression(p.expression)};');
       _emit(' if (!identical(_tmp, ${p.valueField})) {');
-      _emit('   ${withProps.targetObjectField}.${p.property} =');
+      _emit('   ${propContext}.${p.property} =');
       _emit('     ${p.valueField} = _tmp;');
       _emit(' }');
     });
