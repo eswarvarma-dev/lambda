@@ -244,7 +244,7 @@ class NgZone {
   // Outer zone handleUnchaughtError when long stack traces are not used
   void _onErrorWithoutLongStackTrace(error, StackTrace trace) {
     if (_onErrorHandler != null) {
-      _onErrorHandler(error, [trace.toString()]);
+      _onErrorHandler(error, trace);
     } else {
       throw error;
     }

@@ -13,7 +13,9 @@ ViewNode updateUiAutomatically(ViewNode viewFactory()) {
   });
   return zone.run(() {
     final view = viewFactory();
-    zone.overrideOnTurnDone(view.update);
+    zone.overrideOnTurnDone(() {
+      view.update();
+    });
     try {
       view.build();
     } catch(e, s) {

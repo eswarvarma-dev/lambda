@@ -80,7 +80,7 @@ abstract class BaseUpdateMethodVisitor extends AstVisitor {
       }
       if (lowestFragment == null) {
         // Assume published by context
-        return terms;
+        return 'context.${terms}';
       } else {
         return '${'parentFragment.' * levelsUp}${terms}';
       }
